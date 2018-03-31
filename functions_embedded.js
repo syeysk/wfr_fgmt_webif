@@ -484,37 +484,8 @@ class BtnPanel {
         this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
         this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
         
+        this.build_panel(this.opts.initial_btns);
         this.set_mode('using');
-
-        /*this.build_panel(
-            [
-            {type:'category', name:'Спальня', id:1},
-            {type:'button', name:'Главный свет', id:2},
-            {type:'button', name:'Ночник', id:3},
-            
-        ], 6);
-        this.build_panel({
-            categories: {
-                1: {name:'Спальня'}
-            },
-            groups: {
-                1: {name:'Настольный свет'}
-            },
-            
-        });*/
-
-        this.build_panel([
-            {name:'Кабинет', children: [
-                {type:'button', name:'Главный свет'},
-                {type:'button', name:'Ночник'},
-                {type:'group', name:'Настольный свет', children:[
-                    {type:'button', name:'1'},
-                    {type:'button', name:'2'},
-                    {type:'button', name:'3'},
-                    {type:'button', name:'4'}
-                ]}
-            ]}
-        ]);
     }
     
     set_mode(mode) {
@@ -523,9 +494,11 @@ class BtnPanel {
         if (mode == 'using') {
             this.opts.btn_mode_editing.classList.remove('hidden');
             this.opts.btn_mode_using.classList.add('hidden');
+            this.opts.btns.querySelectorAll('.btns_fake').forEach(function(el, i, els) {el.classList.add('hidden')});
         } else if (mode == 'editing') {
             this.opts.btn_mode_editing.classList.add('hidden');
             this.opts.btn_mode_using.classList.remove('hidden');
+            this.opts.btns.querySelectorAll('.btns_fake').forEach(function(el, i, els) {el.classList.remove('hidden')});
         }
     }
     
@@ -538,7 +511,7 @@ class BtnPanel {
             this.set_mode('editing');
         } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
             this.set_mode('using');
-        } else if (c == 'btns_button') {
+        } else if (c.contains('btns_button')) {
             
             if (this.opts.mode == 'using') {
                 console.log('нажата кнопка "'+el.value+'"');
@@ -547,53 +520,100 @@ class BtnPanel {
             }
         }
     }
+    
+    build_panel_button(button, parent_el) {
 
+        let button_el = document.createElement('input');
+        
+        if (button) {
+        
+            button_el.type='button';
+            button_el.value=button.name;
+            button_el.className='btns_button';
+            
+        } else {
+
+            button_el.type='text';
+            button_el.placeholder='новая кнопка';
+            button_el.className='btns_button btns_fake';
+            
+        }
+        
+        parent_el.appendChild(button_el);
+        return button_el;
+        
+    }
+    
+    build_panel_group(group, parent_el) {
+
+        let group_el = document.createElement('div');
+        group_el.className='btns_group';
+        
+        let group_name_el = document.createElement('span');
+        group_name_el.textContent=group.name;
+        group_name_el.className='btns_group_name';
+        
+        group_el.appendChild(group_name_el);
+        parent_el.appendChild(group_el);
+        return group_el;
+        
+    }
+
+    build_panel_category(category, parent_el) {
+        
+        let category_name_el, category_el = document.createElement('div');
+
+        if (category) {
+
+            category_el.className='btns_category';
+            category_name_el = document.createElement('div'/*, {className:'btns_category_name'}*/);
+            category_name_el.textContent = category.name;
+
+        } else {
+ 
+            category_el.className='btns_category btns_fake';
+            category_name_el = document.createElement('input');
+            category_name_el.type = 'text';
+            category_name_el.placeholder = 'новая категория...';
+
+        }
+
+        category_name_el.className='btns_category_name';
+        category_el.appendChild(category_name_el);
+        
+        parent_el.appendChild(category_el);
+        return category_el;
+
+    }
+    
     build_panel_children(children, parent_el) {
         if (!children) return;
-        
-        for (let child of children) {
-            
+
+        children.forEach(function(child, i, children) {
+        //for (let child of children) {
+
             if (child.type == 'button') {
                 
-                let button_el = document.createElement('input'/*, {type:'button', value:child.name}*/);
-                button_el.type='button';
-                button_el.value=child.name;
-                button_el.className='btns_button';
-                
-                parent_el.appendChild(button_el);
+                this.build_panel_button(child, parent_el);
 
             } else if (child.type == 'group') {
                 
-                let group_el = document.createElement('div');
-                group_el.className='btns_group';
-
-                let group_name_el = document.createElement('span');
-                group_name_el.textContent=child.name;
-                group_name_el.className='btns_group_name';
-                
-                group_el.appendChild(group_name_el);
-                parent_el.appendChild(group_el);
-                
+                let group_el = this.build_panel_group(child, parent_el);
                 this.build_panel_children(child.children, group_el)
             }
             
-        }
+            if (i === children.length-1) this.build_panel_button(null, parent_el);
+            
+        }, this);
     }
-    
+
     build_panel(categories) {
+
         for (let category of categories) {
-
-            let category_el = document.createElement('div'/*, {className:'btns_category'}*/);
-            category_el.className='btns_category';
-            let category_name_el = document.createElement('div'/*, {className:'btns_category_name'}*/);
-            category_name_el.className='btns_category_name';
-            category_name_el.textContent = category.name;
-            category_el.appendChild(category_name_el);
-
-            this.opts.btns.appendChild(category_el);
-            
+            let category_el = this.build_panel_category(category, this.opts.btns);
             this.build_panel_children(category.children, category_el);
-            
         }
+        
+        this.build_panel_category(null, this.opts.btns);
     }
 }

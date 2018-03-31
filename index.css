@@ -1,4 +1,5 @@
 fieldset {border-radius: 6px;}
+input {cursor:pointer;}
 
 .content {display: none; padding:20px 10px 10px 20px;}
 .content_active {display: block;}
@@ -22,13 +23,27 @@ fieldset {border-radius: 6px;}
 /* Вкладка "Кнопки" */
 
 .btns_category_name {
+    width:100%;
     background: #eee;
+    padding: 10px 5px;
 }
+
+.btns_category.btns_fake .btns_category_name {
+    width: calc(100% - 4px);
+    border: 2px dashed #aaa;
+    border-radius: 7px;
+}
+
 .btns_button {
     margin: 15px 7px;
     padding: 7px 13px;
     border-radius: 6px;
 }
+
+.btns_button.btns_fake {
+    border: 2px dashed #aaa;
+}
+
 .btns_group {
     position: relative;
     margin: 15px 7px;
