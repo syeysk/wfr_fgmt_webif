@@ -28,7 +28,7 @@ input {cursor:pointer;}
     padding: 10px 5px;
 }
 
-.btns_category.btns_fake .btns_category_name {
+.btns_category.btns_editing .btns_category_name {
     width: calc(100% - 4px);
     border: 2px dashed #aaa;
     border-radius: 7px;
@@ -40,7 +40,7 @@ input {cursor:pointer;}
     border-radius: 6px;
 }
 
-.btns_button.btns_fake {
+.btns_button.btns_editing {
     border: 2px dashed #aaa;
 }
 

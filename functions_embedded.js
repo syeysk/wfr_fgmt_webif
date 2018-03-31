@@ -478,6 +478,7 @@ class BtnPanel {
         this.opts = opts;
         
         this.ev_click = this.ev_click.bind(this);
+        this.ev_btns_import = this.ev_btns_import.bind(this);
         this.opts.btnpanel.addEventListener('click', this.ev_click);
         
         this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
@@ -494,11 +495,11 @@ class BtnPanel {
         if (mode == 'using') {
             this.opts.btn_mode_editing.classList.remove('hidden');
             this.opts.btn_mode_using.classList.add('hidden');
-            this.opts.btns.querySelectorAll('.btns_fake').forEach(function(el, i, els) {el.classList.add('hidden')});
+            this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.add('hidden')});
         } else if (mode == 'editing') {
             this.opts.btn_mode_editing.classList.add('hidden');
             this.opts.btn_mode_using.classList.remove('hidden');
-            this.opts.btns.querySelectorAll('.btns_fake').forEach(function(el, i, els) {el.classList.remove('hidden')});
+            this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.remove('hidden')});
         }
     }
     
@@ -518,6 +519,21 @@ class BtnPanel {
             } else if (this.opts.mode == 'editing') {
                 
             }
+        } else if (c.contains(this.opts.class_prefix+'btn_import') || c.contains(this.opts.class_prefix+'btn_export')) {
+            let w = W.open('btn_import_export', {text_title:el.value, max_count:1});
+            if (!w) return;
+            
+            let data;
+            if (c.contains(this.opts.class_prefix+'btn_import')) data = '';
+            else if (c.contains(this.opts.class_prefix+'btn_export')) data = JSON.stringify(this.btns_export());
+            
+            W.get_wbody(w).innerHTML = `
+                <textarea style='width:95%;' rows='10'></textarea>
+                <br>
+                <input type='button' value='`+el.value+`'/>
+            `;
+            W.get_wbody(w).querySelector('textarea').textContent = data;
+            if (c.contains(this.opts.class_prefix+'btn_import')) W.get_wbody(w).querySelector('input').addEventListener('click', this.ev_btns_import);
         }
     }
     
@@ -535,7 +551,7 @@ class BtnPanel {
 
             button_el.type='text';
             button_el.placeholder='новая кнопка';
-            button_el.className='btns_button btns_fake';
+            button_el.className='btns_button btns_editing';
             
         }
         
@@ -571,7 +587,7 @@ class BtnPanel {
 
         } else {
  
-            category_el.className='btns_category btns_fake';
+            category_el.className='btns_category btns_editing';
             category_name_el = document.createElement('input');
             category_name_el.type = 'text';
             category_name_el.placeholder = 'новая категория...';
@@ -618,11 +634,20 @@ class BtnPanel {
     }
     
     btns_import(data) {
-        
+        this.opts.btns.innerHTML = '';
+        this.build_panel(data);
+        //this.set_mode(this.opts.mode);
+    }
+    
+    ev_btns_import(e) {
+        let data = e.target.parentElement.querySelector('textarea').value;
+        this.btns_import(JSON.parse(data));
     }
     
     btns_export() {
         let data = [];
+        
+        data = this.opts.initial_btns;
         
         return data;
     }
