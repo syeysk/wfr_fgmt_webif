@@ -616,4 +616,15 @@ class BtnPanel {
         
         this.build_panel_category(null, this.opts.btns);
     }
+    
+    btns_import(data) {
+        
+    }
+    
+    btns_export() {
+        let data = [];
+        
+        return data;
+    }
+    
 }
