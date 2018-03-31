@@ -1,0 +1,14 @@
+fieldset {border-radius: 6px;}
+
+.content {display: none; padding:20px 10px 10px 20px;}
+.content_active {display: block;}
+.navpanel {position:absolute;top:0;left:0;color:#ffffff;text-align:center;width:100%;}
+.navpanel div {cursor:pointer;background:#eaa700;padding:5px 10px 5px 10px;display:inline-block;vertical-align:top;}
+.navpanel div.active {background:#ffbe1c;color:#775500;}
+.navpanel div:hover {padding-top:15px;}
+
+#content_std input {color: white; font-size: 18pt; border-radius: 15px; margin: 5px; padding: 16px 27px;}
+#content_std input[data-value="0"] {background: #c70005;}
+#content_std input[data-value="1"] {background: green;}
+
+.content_block_right {text-align:right;}

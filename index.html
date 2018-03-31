@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width">
+        <title>Реле WI-FI v0.3</title>
+        <script src="functions_embedded.js"></script>
+        <link rel="stylesheet" type="text/css" href="index.css">
+    </head>
+    <body>
+
+        <script>
+        </script>
+    
+        <div class="navpanel">
+            <div data-content="std">Стандартное</div>
+            <div data-content="btn">Кнопки</div>
+            <div data-content="dev">Устройства</div>
+            <div data-content="event">События</div>
+            <div data-content="set">Настройки</div>
+        </div>
+
+        <div class="content" id="content_std">
+        </div>
+
+        <div class="content" id="content_btn">
+            <div class='content_block_right'>
+                <input type='button' onclick="btn_edit()" value="Редактирование кнопок"><input type='button' onclick="btn_use()" value="Завершить редактирование">
+                <br>
+                <span>Настройка действий кнопок осуществляется в разделе "События"</span>
+            </div>
+            
+            <form>
+                <input type='text' value='' name='btn_name' placeholder='новая кнопка'>
+                <select name='group' onchange="this.style.display='none'; this.form.new_group.style.display='inline'; this.form.new_cancel.style.display='inline';">
+                    <option selected disabled value='default'>выберите группу</option>
+                    <option value='new'>новая группа</option>
+                </select>
+                <input style='display:none;' type='text' value='' name='new_group' placeholder='новая группа'>
+                <input style='display:none;' type='button' value='x' name='new_cancel' onclick="this.style.display='none'; this.form.new_group.style.display='none'; this.form.group.style.display='inline'; this.form.group.value='default';">
+                <input type='button' value='добавить'>
+            </form>
+
+            <form>
+                <input type='text' value='' name='monitor_name' placeholder='новый индикатор'>
+                <input type='button' value='добавить'>
+            </form>
+            
+        </div>
+        
+        <div class="content" id="content_event">
+        
+           <form>
+               <fieldset><legend>Причинно-следственные связи</legend>
+                   <select>
+                       <option selected disabled>Причина</option>
+                   </select>
+                   <select>
+                       <option selected disabled>Следствие</option>
+                   </select>
+                   <input type='button' value='Добавить'>
+               </fieldset> 
+           </form>
+
+           <br>
+           
+           <form>
+               <fieldset><legend>Добавить причину (источник события)</legend>
+                   <select onchange=''>
+                       <option selected>Нажатие на кнопку</option>
+                       <option>Изменение состояния канала</option>
+                       <option>Временной интервал</option>
+                   </select>
+                   <input type='text' placeholder='название'>
+                   <br>
+                   <input type='button' value='Добавить'>
+               </fieldset>
+           </form>
+
+           <br>
+           
+            <form>
+                <fieldset><legend>Добавить следствие (событие)</legend>
+                    <select onchange=''>
+                        <option selected>Изменение состояния канала</option>
+                        <option></option>
+                    </select>
+                    <input type='text' placeholder='название'>
+                    <br>
+                    <input type='button' value='Добавить'>
+                </fieldset>
+            </form>
+        </div>
+        
+        <div class="content" id="content_set">
+            <form onchange="sendform(this, 'settings', {data:{'do':'mode'}})">
+                <fieldset><legend>Режим работы</legend>
+                    <label> <input type='radio' name='wifi_mode' value='1'> Клиент </label>
+                    <label> <input type='radio' name='wifi_mode' value='0'> Точка доступа </label>
+                    <label> <input type='radio' name='wifi_mode' value='2'> Оба варианта </label>
+                </fieldset>
+            </form>
+        
+            <br>
+        
+            <form class='settings'>
+                <fieldset><legend>Настройки WI-FI</legend>
+            
+                <br><b>Точка доступа</b><br>
+                <table>
+                    <tr>
+                        <td>Имя сети:</td> <td> <input type="text" name='ssidAP' value='{% ee_data.ssidAP %}'> </td>
+                    </tr>
+                    <tr>
+                        <td> Пароль: </td> <td> <input type="text" name='passwordAP' value='{% ee_data.passwordAP %}'> </td>
+                    </tr>
+                </table>
+
+                <br><b>Клиент</b><br>
+                <table>
+                    <tr>
+                        <td>Имя сети:</td> <td> <input type="text" name='ssid' value='{% ee_data.ssid %}'> </td>
+                    </tr>
+                    <tr>
+                        <td>Пароль: </td> <td> <input type="text" name='password' value='{% ee_data.password %}'> </td>
+                    </tr>
+                </table>
+                
+                <br>
+
+                <input type='button' value='Сохранить' onclick="sendform(this, 'settings', {data:{'do':'wifi'}})">
+
+                </fieldset>
+            </form>
+
+            <br>
+            
+            <form>
+                <fieldset><legend>Прочее</legend>
+                    <input type="button" value="Сбросить настройки" onclick="if (confirm('Настройки будут безвозвратно сброшены на заводские. Продолжить?')) sendform(this, 'settings', {data:{'do':'reset'}, func_success: function() {alert('Настройки сброшены. Перезагрузите устройство.');}});"> <input type="button" value="Перезапустить" onclick="if (confirm('Устройство будет перезапущено. Продолжить?')) sendform(this, 'settings', {data: {'do':'reboot'}, func_after_load: function() {alert('Устройство перезапущено. Через несколько секунд обновите данную страницу.');}});">
+                </fieldset>
+            </form>
+
+        </div>
+
+        <div class="content" id="content_dev">
+        </div>
+        
+        <script>
+
+var el = document.getElementById("content_std");
+for (var i=1; i < 17; i++) {
+    el.innerHTML += "<input type='button' value='"+i+"' data-value='0' onclick=\"sendform(this, 'std', {data:{name:this.value, value: this.dataset.value == '0' ? '1' : '0'}})\">";
+}
+        
+var cs = new ContentShower({
+    navpanel: document.querySelector('.navpanel'),
+    content_prefix: 'content_',
+    content_active: 'std'
+});
+
+        </script>
+        
+    </body>
+</html>
