@@ -12,3 +12,33 @@ fieldset {border-radius: 6px;}
 #content_std input[data-value="1"] {background: green;}
 
 .content_block_right {text-align:right;}
+
+/* для скриптов */
+
+.hidden {
+    display: none;
+}
+
+/* Вкладка "Кнопки" */
+
+.btns_category_name {
+    background: #eee;
+}
+.btns_button {
+    margin: 15px 7px;
+    padding: 7px 13px;
+    border-radius: 6px;
+}
+.btns_group {
+    position: relative;
+    margin: 15px 7px;
+    border-radius:15px;
+    border: 1px solid #aaa;
+    display: inline-block;
+}
+.btns_group_name {
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: #fff;
+}

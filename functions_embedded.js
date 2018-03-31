@@ -432,8 +432,11 @@ function DND(element, options) {
     element.addEventListener('touchstart', _dnd, {passive:true}); // для сенсорного дисплея
 }
 
-/* for WI-FI Relay */
+/* ------------------ for WI-FI Relay ------------------ */
 
+/*
+ * Класс для панел навигацими по вкладкам
+ */
 class ContentShower {
     
     /* opts.navpanel, opts.content_prefix, opts.content_active
@@ -463,5 +466,134 @@ class ContentShower {
     ev_show(e) {
         if (!e.target.dataset.content) return;
         this.show(e.target.dataset.content);
+    }
+}
+
+class BtnPanel {
+
+    /* opts.btnpanel, opts.class_prefix
+     */
+    constructor(opts) {
+        
+        this.opts = opts;
+        
+        this.ev_click = this.ev_click.bind(this);
+        this.opts.btnpanel.addEventListener('click', this.ev_click);
+        
+        this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
+        this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
+        this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
+        
+        this.set_mode('using');
+
+        /*this.build_panel(
+            [
+            {type:'category', name:'Спальня', id:1},
+            {type:'button', name:'Главный свет', id:2},
+            {type:'button', name:'Ночник', id:3},
+            
+        ], 6);
+        this.build_panel({
+            categories: {
+                1: {name:'Спальня'}
+            },
+            groups: {
+                1: {name:'Настольный свет'}
+            },
+            
+        });*/
+
+        this.build_panel([
+            {name:'Кабинет', children: [
+                {type:'button', name:'Главный свет'},
+                {type:'button', name:'Ночник'},
+                {type:'group', name:'Настольный свет', children:[
+                    {type:'button', name:'1'},
+                    {type:'button', name:'2'},
+                    {type:'button', name:'3'},
+                    {type:'button', name:'4'}
+                ]}
+            ]}
+        ]);
+    }
+    
+    set_mode(mode) {
+        this.opts.mode = mode;
+        
+        if (mode == 'using') {
+            this.opts.btn_mode_editing.classList.remove('hidden');
+            this.opts.btn_mode_using.classList.add('hidden');
+        } else if (mode == 'editing') {
+            this.opts.btn_mode_editing.classList.add('hidden');
+            this.opts.btn_mode_using.classList.remove('hidden');
+        }
+    }
+    
+    ev_click(e) {
+        
+        let c = e.target.classList;
+        let el = e.target;
+        
+        if (c.contains(this.opts.class_prefix+'btn_mode_editing')) {
+            this.set_mode('editing');
+        } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
+            this.set_mode('using');
+        } else if (c == 'btns_button') {
+            
+            if (this.opts.mode == 'using') {
+                console.log('нажата кнопка "'+el.value+'"');
+            } else if (this.opts.mode == 'editing') {
+                
+            }
+        }
+    }
+
+    build_panel_children(children, parent_el) {
+        if (!children) return;
+        
+        for (let child of children) {
+            
+            if (child.type == 'button') {
+                
+                let button_el = document.createElement('input'/*, {type:'button', value:child.name}*/);
+                button_el.type='button';
+                button_el.value=child.name;
+                button_el.className='btns_button';
+                
+                parent_el.appendChild(button_el);
+
+            } else if (child.type == 'group') {
+                
+                let group_el = document.createElement('div');
+                group_el.className='btns_group';
+
+                let group_name_el = document.createElement('span');
+                group_name_el.textContent=child.name;
+                group_name_el.className='btns_group_name';
+                
+                group_el.appendChild(group_name_el);
+                parent_el.appendChild(group_el);
+                
+                this.build_panel_children(child.children, group_el)
+            }
+            
+        }
+    }
+    
+    build_panel(categories) {
+        for (let category of categories) {
+
+            let category_el = document.createElement('div'/*, {className:'btns_category'}*/);
+            category_el.className='btns_category';
+            let category_name_el = document.createElement('div'/*, {className:'btns_category_name'}*/);
+            category_name_el.className='btns_category_name';
+            category_name_el.textContent = category.name;
+            category_el.appendChild(category_name_el);
+
+            this.opts.btns.appendChild(category_el);
+            
+            this.build_panel_children(category.children, category_el);
+            
+        }
     }
 }
