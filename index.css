@@ -17,7 +17,7 @@ input {cursor:pointer;}
 /* для скриптов */
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Вкладка "Кнопки" */
@@ -44,12 +44,21 @@ input {cursor:pointer;}
     border: 2px dashed #aaa;
 }
 
+.btns_group.btns_editing input {
+    border: 2px dashed #aaa;
+    border-radius: 7px;
+    padding: 7px 13px;
+}
+
 .btns_group {
     position: relative;
     margin: 15px 7px;
     border-radius:15px;
     border: 1px solid #aaa;
     display: inline-block;
+    min-width:200px;
+    min-height:40px;
+    vertical-align: middle;
 }
 .btns_group_name {
     position: absolute;

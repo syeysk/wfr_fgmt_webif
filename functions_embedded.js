@@ -479,8 +479,11 @@ class BtnPanel {
         
         this.ev_click = this.ev_click.bind(this);
         this.ev_btns_import = this.ev_btns_import.bind(this);
+        this.ev_add_category = this.ev_add_category.bind(this);
+        this.ev_add_button = this.ev_add_button.bind(this);
+        this.ev_add_group = this.ev_add_group.bind(this);
         this.opts.btnpanel.addEventListener('click', this.ev_click);
-        
+
         this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
         this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
         this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
@@ -528,7 +531,7 @@ class BtnPanel {
             else if (c.contains(this.opts.class_prefix+'btn_export')) data = JSON.stringify(this.btns_export());
             
             W.get_wbody(w).innerHTML = `
-                <textarea style='width:95%;' rows='10'></textarea>
+                <textarea style='width:95%;' rows='10' autofocus></textarea>
                 <br>
                 <input type='button' value='`+el.value+`'/>
             `;
@@ -536,8 +539,64 @@ class BtnPanel {
             if (c.contains(this.opts.class_prefix+'btn_import')) W.get_wbody(w).querySelector('input').addEventListener('click', this.ev_btns_import);
         }
     }
+
     
-    build_panel_button(button, parent_el) {
+    ev_add_category(e) {
+
+        let c = e.target.classList;
+        let el = e.target;
+
+        if (el.value.trim() == '') return;
+        
+        let data = {
+            name: el.value
+        };
+
+        el.value='';
+        
+        let category_el = this.build_panel_category(data, this.opts.btns, false);
+        this.build_panel_button(null, category_el);
+        this.build_panel_group(null, category_el);
+        
+    }
+
+    ev_add_button(e) {
+        
+        let c = e.target.classList;
+        let el = e.target;
+        
+        if (el.value.trim() == '') return;
+        
+        let data = {
+            name: el.value
+        };
+
+        el.value='';
+        
+        this.build_panel_button(data, el.parentElement, false);
+
+    }
+
+    ev_add_group(e) {
+
+        let c = e.target.classList;
+        let el = e.target;
+        
+        if (el.value.trim() == '') return;
+        
+        let data = {
+            name: el.value
+        };
+        
+        el.value='';
+        
+        let group_el = this.build_panel_group(data, el.closest('.btns_group').parentElement, false);
+        this.build_panel_button(null, group_el);
+        this.build_panel_group(null, group_el);
+        
+    }
+    
+    build_panel_button(button, parent_el, is_append=true) {
 
         let button_el = document.createElement('input');
         
@@ -548,34 +607,60 @@ class BtnPanel {
             button_el.className='btns_button';
             
         } else {
+            
+            let ph = 'новая кнопка...';
 
             button_el.type='text';
-            button_el.placeholder='новая кнопка';
+            button_el.placeholder=ph;
             button_el.className='btns_button btns_editing';
+            button_el.size=ph.length-4;
+            
+            button_el.addEventListener('blur', this.ev_add_button);
             
         }
         
-        parent_el.appendChild(button_el);
+        if (is_append) parent_el.appendChild(button_el);
+        else parent_el.insertBefore(button_el, parent_el.lastChild.previousElementSibling);
         return button_el;
         
     }
     
-    build_panel_group(group, parent_el) {
+    build_panel_group(group, parent_el, is_append=true) {
 
-        let group_el = document.createElement('div');
-        group_el.className='btns_group';
+        let group_name_el, group_el = document.createElement('div');
         
-        let group_name_el = document.createElement('span');
-        group_name_el.textContent=group.name;
-        group_name_el.className='btns_group_name';
+        if (group) {
+
+            group_el.className='btns_group';
+    
+            group_name_el = document.createElement('span');
+            group_name_el.textContent=group.name;
+            group_name_el.className='btns_group_name';
         
+        } else {
+            
+            let ph = 'новая группа...';
+ 
+            group_el.className='btns_group btns_editing';
+
+            group_name_el = document.createElement('input');
+            group_name_el.placeholder=ph;
+            group_name_el.size=ph.length-4
+            group_name_el.className='btns_group_name';
+            
+            group_name_el.addEventListener('blur', this.ev_add_group);
+            
+        }
+
         group_el.appendChild(group_name_el);
-        parent_el.appendChild(group_el);
+        if (is_append) parent_el.appendChild(group_el);
+        else parent_el.insertBefore(group_el, parent_el.lastChild.previousElementSibling);
+        
         return group_el;
         
     }
 
-    build_panel_category(category, parent_el) {
+    build_panel_category(category, parent_el, is_append=true) {
         
         let category_name_el, category_el = document.createElement('div');
 
@@ -591,13 +676,16 @@ class BtnPanel {
             category_name_el = document.createElement('input');
             category_name_el.type = 'text';
             category_name_el.placeholder = 'новая категория...';
+            
+            category_name_el.addEventListener('blur', this.ev_add_category);
 
         }
 
         category_name_el.className='btns_category_name';
         category_el.appendChild(category_name_el);
         
-        parent_el.appendChild(category_el);
+        if (is_append) parent_el.appendChild(category_el);
+        else parent_el.insertBefore(category_el, parent_el.lastChild);
         return category_el;
 
     }
@@ -618,7 +706,10 @@ class BtnPanel {
                 this.build_panel_children(child.children, group_el)
             }
             
-            if (i === children.length-1) this.build_panel_button(null, parent_el);
+            if (i === children.length-1) {
+                this.build_panel_button(null, parent_el);
+                this.build_panel_group(null, parent_el);
+            }
             
         }, this);
     }
@@ -636,7 +727,7 @@ class BtnPanel {
     btns_import(data) {
         this.opts.btns.innerHTML = '';
         this.build_panel(data);
-        //this.set_mode(this.opts.mode);
+        this.set_mode(this.opts.mode);
     }
     
     ev_btns_import(e) {
@@ -644,10 +735,39 @@ class BtnPanel {
         this.btns_import(JSON.parse(data));
     }
     
-    btns_export() {
-        let data = [];
+    btns_export_children(parent_el, data) {
         
-        data = this.opts.initial_btns;
+        let child;
+        
+        for (let child_el of parent_el.children) {
+            
+            if (child_el.classList.contains('btns_editing')) continue;
+        
+            if (child_el.classList.contains('btns_button')) {
+                data.push({type:'button', name:child_el.value});
+            } else if (child_el.classList.contains('btns_group')) {
+                child = {type:'group', name:child_el.firstChild.textContent, children:[]};
+                data.push(child);
+                this.btns_export_children(child_el, child.children);
+            }
+
+        }
+    }
+    
+    btns_export() {
+        let category, data = [];
+        
+        for (let category_el of this.opts.btns.children) {
+            if (!category_el.classList.contains('btns_category')) continue;
+            if (category_el.classList.contains('btns_editing')) continue;
+
+            category = {name:category_el.firstChild.textContent, children:[]};
+            data.push(category);
+            this.btns_export_children(category_el, category.children);
+        }
+        
+        //let text = JSON.stringify(data) == JSON.stringify(this.opts.initial_btns) ? 'true' : 'false';
+        //console.log(text);
         
         return data;
     }
