@@ -531,11 +531,12 @@ class BtnPanel {
             else if (c.contains(this.opts.class_prefix+'btn_export')) data = JSON.stringify(this.btns_export());
             
             W.get_wbody(w).innerHTML = `
-                <textarea style='width:95%;' rows='10' autofocus></textarea>
+                <textarea style='width:95%;' rows='10'></textarea>
                 <br>
                 <input type='button' value='`+el.value+`'/>
             `;
             W.get_wbody(w).querySelector('textarea').textContent = data;
+            W.get_wbody(w).querySelector('textarea').focus();
             if (c.contains(this.opts.class_prefix+'btn_import')) W.get_wbody(w).querySelector('input').addEventListener('click', this.ev_btns_import);
         }
     }
