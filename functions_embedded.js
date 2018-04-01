@@ -482,6 +482,8 @@ class BtnPanel {
         this.ev_add_category = this.ev_add_category.bind(this);
         this.ev_add_button = this.ev_add_button.bind(this);
         this.ev_add_group = this.ev_add_group.bind(this);
+        this.ev_edit_click = this.ev_edit_click.bind(this);
+        this.ev_edit_blur = this.ev_edit_blur.bind(this);
         this.opts.btnpanel.addEventListener('click', this.ev_click);
 
         this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
@@ -505,6 +507,44 @@ class BtnPanel {
             this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.remove('hidden')});
         }
     }
+
+    ev_edit_click(e) {
+
+        let c = e.target.classList;
+        let el = e.target;
+        
+        if (c.contains('btn_edit_delete')) {
+            let w = W.get_w(el);
+            let btn = W.get_data(w);
+
+            if (btn.classList.contains('btns_button'))  btn.remove();
+            else if (btn.classList.contains('btns_group_name')) btn.parentElement.remove();
+            else if (btn.classList.contains('btns_category_name')) btn.parentElement.remove();
+            
+            W.close(w);
+        } else if (c.contains('btn_edit_')) {
+            
+        }
+    }
+
+    ev_edit_blur(e) {
+        
+        let c = e.target.classList;
+        let el = e.target;
+        
+        if (!el.value.trim()) return;
+        
+        if (c.contains('btn_edit_rename')) {
+            let w = W.get_w(el);
+            let btn = W.get_data(w);
+            
+            if (btn.classList.contains('btns_button')) btn.value = el.value;
+            else if (btn.classList.contains('btns_group_name')) btn.textContent = el.value;
+            else if (btn.classList.contains('btns_category_name')) btn.textContent = el.value;
+            
+            W.close(w);
+        }
+    }
     
     ev_click(e) {
         
@@ -515,15 +555,47 @@ class BtnPanel {
             this.set_mode('editing');
         } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
             this.set_mode('using');
+
         } else if (c.contains('btns_button')) {
+            
+            if (c.contains('btns_editing')) return;
             
             if (this.opts.mode == 'using') {
                 console.log('нажата кнопка "'+el.value+'"');
             } else if (this.opts.mode == 'editing') {
-                
+                let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+                if (!w) return;
+                W.set_data(w, el);
+                w.addEventListener('click', this.ev_edit_click);
+                w.querySelector('.btn_edit_rename').value=el.value;
+                w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
             }
+
+        } else if (c.contains('btns_group_name') && this.opts.mode == 'editing') {
+
+            if (el.closest('.btns_editing')) return;
+            
+            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+            if (!w) return;
+            W.set_data(w, el);
+            w.addEventListener('click', this.ev_edit_click);
+            w.querySelector('.btn_edit_rename').value=el.textContent;
+            w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
+
+        } else if (c.contains('btns_category_name') && this.opts.mode == 'editing') {
+            
+            if (el.closest('.btns_editing')) return;
+            
+            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+            if (!w) return;
+            W.set_data(w, el);
+            w.addEventListener('click', this.ev_edit_click);
+            w.querySelector('.btn_edit_rename').value=el.textContent;
+            w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
+            
+            
         } else if (c.contains(this.opts.class_prefix+'btn_import') || c.contains(this.opts.class_prefix+'btn_export')) {
-            let w = W.open('btn_import_export', {text_title:el.value, max_count:1});
+            let w = W.open('btn_w_import_export', {text_title:el.value, max_count:1});
             if (!w) return;
             
             let data;

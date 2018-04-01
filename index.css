@@ -8,9 +8,10 @@ input {cursor:pointer;}
 .navpanel div.active {background:#ffbe1c;color:#775500;}
 .navpanel div:hover {padding-top:15px;}
 
-#content_std input {color: white; font-size: 18pt; border-radius: 15px; margin: 5px; padding: 16px 27px;}
-#content_std input[data-value="0"] {background: #c70005;}
-#content_std input[data-value="1"] {background: green;}
+#content_std input {font-size: 18pt; border-radius: 15px; margin: 5px; padding: 16px 27px;}
+input[data-value] {color: white;}
+input[data-value="0"] {background: #c70005;}
+input[data-value="1"] {background: green;}
 
 .content_block_right {text-align:right;}
 
