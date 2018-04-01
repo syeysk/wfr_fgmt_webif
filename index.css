@@ -1,5 +1,6 @@
-fieldset {border-radius: 6px;}
+fieldset {border-radius: 6px; border: 1px solid #eaa700}
 input {cursor:pointer;}
+legend {color:#9a6e01;}
 
 .content {display: none; padding:20px 10px 10px 20px;}
 .content_active {display: block;}
@@ -57,7 +58,7 @@ input[data-value="1"] {background: green;}
     position: relative;
     margin: 15px 7px;
     border-radius:15px;
-    border: 1px solid #aaa;
+    border: 1px solid #eaa700;
     display: inline-block;
     min-width:200px;
     min-height:40px;
@@ -68,4 +69,5 @@ input[data-value="1"] {background: green;}
     top: -10px;
     left: 20px;
     background: #fff;
+    color:#9a6e01;
 }
