@@ -10,9 +10,9 @@ legend {color:#9a6e01;}
 .navpanel div:hover {padding-top:15px;}
 
 #content_std input {font-size: 18pt; border-radius: 15px; margin: 5px; padding: 16px 27px;}
-input[data-value] {color: white;}
-input[data-value="0"] {background: #c70005;}
-input[data-value="1"] {background: green;}
+input[data-name] {color: white;}
+input[data-value="0"][data-name] {background: #c70005;}
+input[data-value="1"][data-name] {background: green;}
 
 .content_block_right {text-align:right;}
 

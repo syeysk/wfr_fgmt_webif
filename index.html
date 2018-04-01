@@ -172,7 +172,7 @@
 
 var el = document.getElementById("content_std");
 for (var i=1; i < 17; i++) {
-    el.innerHTML += "<input type='button' value='"+i+"' data-value='0' onclick=\"sendform(this, 'std', {data:{name:this.value, value: this.dataset.value == '0' ? '1' : '0'}})\">";
+    el.innerHTML += "<input type='button' value='"+i+"' data-value='0' data-name='"+i+"' onclick=\"sendform(this, 'std', {data:{name:this.value, value: this.dataset.value == '0' ? '1' : '0'}})\">";
 }
         
 var cs = new ContentShower({
