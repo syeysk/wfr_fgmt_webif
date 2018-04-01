@@ -679,6 +679,9 @@ class BtnPanel {
             button_el.value=button.name;
             button_el.className='btns_button';
             
+            if (button.ch_name !== undefined) button_el.dataset.name = button.ch_name;
+            if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
+                
         } else {
             
             let ph = 'новая кнопка...';
