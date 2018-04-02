@@ -271,30 +271,22 @@ function Window() {
             else {return wbody.innerHTML;}
     };
         
-        this.calc_position = function(w, position) {
-                if (position == 'center') {
-
-                    var w_height = parseInt(getComputedStyle(w).height);
-                    var client_height = document.documentElement.clientHeight;
-                    var top = (client_height - w_height) / 2;
-                    top = top >= 0 ? top : 0 ;
-                    w.style.top = top+"px";
-                
-                    var w_width = parseInt(getComputedStyle(w).width);
-                    var client_width = document.documentElement.clientWidth;
-                    var left = (client_width - w_width) / 2;
-                    left = left >= 0 ? left : 0 ;
-                    w.style.left = left+"px";
-
-                } else if (position == 'random') {
+    this.calc_position = function(w, position) {
+        if (position == 'center') {
+            var left = (document.documentElement.clientWidth - parseInt(getComputedStyle(w).width)) / 2;
+            var top = (document.documentElement.clientHeight - parseInt(getComputedStyle(w).height)) / 2;
+            w.style.left = (left >= 0 ? left : 0)+"px";
+            w.style.top = (top >= 0 ? top : 0)+"px";
+        } else if (position == 'random') {
             w.style.left = (5+Math.random()*6)+"%";
             w.style.top  = (30+Math.random()*3)+"%";
-       } else if (typeof position == 'object') {
-           console.log(position);
-           w.style.left = position[0]+'px';
-           w.style.top  = position[1]+'px';
-       }
-   }
+        } else if (typeof position == 'object') {
+            var left = position[0] > document.documentElement.clientWidth -  position[0] ? position[0] - parseInt(getComputedStyle(w).width) :  position[0];
+            var top =  position[1] > document.documentElement.clientHeight - position[1] ? position[1] - parseInt(getComputedStyle(w).height) : position[1];
+            w.style.left = left+'px';
+            w.style.top  = top+'px';
+        }
+    }
 }
 
 function AdvancedWindow() {
