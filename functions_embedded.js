@@ -407,7 +407,12 @@ function DND(element, options) {
         document.removeEventListener('touchmove', move);
         document.removeEventListener('toucend', end);
         document.body.onmousedown = function() {return true;}; // включаем  выделение текста
-        if (options['up'] && !options.first) options['up'](e, options['data']);
+        if (!options.first) {
+            if (options['up']) options['up'](e, options['data']);
+            var over_el = get_over_el(e);
+            if (options['drop']) options['drop'](e, options['data'], over_el, options.prev_over_el);
+            if (options['overout']) options['overout'](e, options['data'], options.prev_over_el);
+        }
     }
     
     function move(e) {
@@ -418,11 +423,18 @@ function DND(element, options) {
             } else {end(e); return;}
         }
         if (options['move']) options['move'](e, options['data']);
+
+        var over_el = get_over_el(e);
+        if (over_el !== options.prev_over_el) {
+            if (options['overenter']) options['overenter'](e, options['data'], over_el);
+            if (options['overout']) options['overout'](e, options['data'], options.prev_over_el);
+        }
+        options.prev_over_el = over_el;
     }
     
     function check_start(e) {
-        var _e = (e.changedTouches) ? e.changedTouches[0] : e;
-        return Math.abs(options.downX - _e.pageX) > 2 && Math.abs(options.downY - _e.pageY) > 2;
+        var e = (e.changedTouches) ? e.changedTouches[0] : e;
+        return Math.abs(options.downX - e.pageX) > 2 && Math.abs(options.downY - e.pageY) > 2;
     }
 
     function init_start(e) { // drag and drop
@@ -433,11 +445,21 @@ function DND(element, options) {
         
         var _e = (e.touches) ? e.touches[0] : e;
         options.downX = _e.pageX; options.downY = _e.pageY;options.first = true;
+        options.prev_over_el = null;
         
         document.addEventListener('mousemove', move);
         document.addEventListener('touchmove', move);
         document.addEventListener('mouseup',  end);
         document.addEventListener('touchend', end);
+    }
+    
+    function get_over_el(e) {
+        var e = (e.changedTouches) ? e.changedTouches[0] : e;;
+        el.hidden = true;
+        var over_el = document.elementFromPoint(e.clientX, e.clientY);
+        el.hidden = false;
+        return over_el;
+        //if (over_el === null) return;
     }
     
     element.addEventListener('mousedown', init_start); // для мыши
@@ -511,7 +533,7 @@ class BtnPanel {
         
         DND(this.opts.btns, {
             down: function(e, data) {
-                if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                if (e.touches) e = e.touches[0];
                 let el = e.target;
                 if (el.classList.contains('btns_button')) {
 
@@ -523,7 +545,7 @@ class BtnPanel {
                 }
             },
             move: function(e, data) {
-                if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                if (e.changedTouches) e = e.changedTouches[0];
                 let el = e.target;
 
                 if (el.classList.contains('btns_button')) {
@@ -536,23 +558,44 @@ class BtnPanel {
                 }
             },
             up: function(e, data) {
-                if (data['isSensorDisplay'] && e.touches) e = e.changedTouches[0];
+                if (e.changedTouches) e = e.changedTouches[0];
                 let el = e.target;
                 
-                el.hidden = true;
-                let under_el = document.elementFromPoint(e.clientX, e.clientY);
-                el.hidden = false;
+                //el.hidden = true;
+                //let under_el = document.elementFromPoint(e.clientX, e.clientY);
+                //el.hidden = false;
                 
                 if (el.classList.contains('btns_button')) {
 
-                    if (under_el !== null && (under_el.classList.contains('btns_button') || under_el.classList.contains('btns_group'))) {
-                        under_el.parentNode.insertBefore(el, under_el);
-                    }
+                    //if (under_el !== null && (under_el.classList.contains('btns_button') || under_el.classList.contains('btns_group'))) {
+                    //    under_el.parentNode.insertBefore(el, under_el);
+                    //}
                     
                     el.style.position = 'static';
                     el.style.top = '';
                     el.style.left = '';
                     data.bp.d = false;
+                }
+            },
+            overenter: function(e, data, over_el) {
+                if (over_el === null) return;
+                if (over_el.classList.contains('btns_button')) {
+                    over_el.style.marginLeft = '20px';
+                }
+            },
+            overout: function(e, data, over_el) {
+                if (over_el === null) return;
+                if (over_el.classList.contains('btns_button')) {
+                    over_el.style.marginLeft = '';
+                }
+            },
+            drop: function(e, data, overenter_el, overout_el) {
+                if (e.changedTouches) e = e.changedTouches[0];
+                let el = e.target;
+
+                if (overout_el === null) return;
+                if (overout_el.classList.contains('btns_button')) {
+                    overout_el.parentNode.insertBefore(el, overout_el);
                 }
             },
             data: {bp:this}
