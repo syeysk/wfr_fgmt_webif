@@ -17,13 +17,13 @@ Date: 2015 - 2017 years
 13.04.2017 - Перенесён расшиернный класс окна из Инфо.РФ. При открытии окна можно задать опцию url.
 */
 
-function _getCoords(elem) { // кроме IE8-  // утащено отсюда --> https://learn.javascript.ru/coordinates-document#getCoords. Очень благодарен указаному сайту, так почти всегда обращаюсь к нему. Иногда - сайт Мозиллы.
+/*function _getCoords(elem) { // кроме IE8-  // утащено отсюда --> https://learn.javascript.ru/coordinates-document#getCoords. Очень благодарен указаному сайту, так почти всегда обращаюсь к нему. Иногда - сайт Мозиллы.
     var box = elem.getBoundingClientRect();
     return {
         top: box.top + pageYOffset*0,    // помножили на ноль значение того, на сколько прокрученав странца. Если убрать ноль, то вместо позиции на окне будет указана позиция на странице.
         left: box.left + pageXOffset*0
     };
-}
+}*/
 
 function _Window() {
         var self = this;
@@ -148,14 +148,14 @@ function Window() {
             var wtitle = self.get_wtitle(w);
             DND(wtitle, {
                 down: function(e, data) {
-                            if (data['isSensorDisplay']) e = e.touches[0];
-                // необязательны, без них курсор будет смещаться к углу захватываемого объекта
-                            data['shiftX'] = e.clientX - _getCoords(data['wtitle']).left; 
-                            data['shiftY'] = e.clientY - _getCoords(data['wtitle']).top;
-                            if (self.zi) self.zi.lift(data['w'], 'top')
+                    if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                    // необязательны, без них курсор будет смещаться к углу захватываемого объекта
+                    data['shiftX'] = e.clientX - data['wtitle'].getBoundingClientRect().left;
+                    data['shiftY'] = e.clientY - data['wtitle'].getBoundingClientRect().top;
+                    if (self.zi) self.zi.lift(data['w'], 'top')
                 },
                 move: function(e, data) {
-                        if (data['isSensorDisplay']) e = e.touches[0];
+                    if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
                         var left = e.clientX - data['shiftX'];
                         var top = e.clientY - data['shiftY'];
                         var screen_width  = document.documentElement.clientWidth-parseInt(getComputedStyle(data['wtitle']).width);

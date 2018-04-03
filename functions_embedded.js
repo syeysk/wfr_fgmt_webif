@@ -401,35 +401,47 @@ function set_params(params, options) {
 }
 
 function DND(element, options) {
-    function dnd(e) { // drag and drop
-        e.currentTarget.ondragstart = function() {return false;};
+    function end(e) {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('toucend', end);
+        document.body.onmousedown = function() {return true;}; // включаем  выделение текста
+        if (options['up'] && !options.first) options['up'](e, options['data']);
+    }
+    
+    function move(e) {
+        if (options.first) {
+            if (check_start(e)) {
+                if (options['down']) options['down'](e, options['data']);
+                options.first = false;
+            } else {end(e); return;}
+        }
+        if (options['move']) options['move'](e, options['data']);
+    }
+    
+    function check_start(e) {
+        var _e = (e.changedTouches) ? e.changedTouches[0] : e;
+        return Math.abs(options.downX - _e.pageX) > 2 && Math.abs(options.downY - _e.pageY) > 2;
+    }
+
+    function init_start(e) { // drag and drop
+        e.currentTarget.ondragstart = function() {return false;}; // выключаем стандартный drag-n-drop
         document.body.onmousedown = function() {return false;}; // выключаем  выделение текста
         options['data'] = options['data'] || {};
         options['data']['isSensorDisplay'] = e.touches === undefined ? false : true
         
-        if (options['down']) options['down'](e, options['data']);
+        var _e = (e.touches) ? e.touches[0] : e;
+        options.downX = _e.pageX; options.downY = _e.pageY;options.first = true;
         
-        function end(e) {
-            document.removeEventListener('mousemove', move);
-            document.removeEventListener('mouseup', end);
-            document.removeEventListener('touchmove', move);
-            document.removeEventListener('toucend', end);
-            document.body.onmousedown = function() {return true;}; // включаем  выделение текста
-            if (options['up']) options['up'](e, options['data']);
-        }
-        
-        function move(e) {
-            if (options['move']) options['move'](e, options['data']);
-        }
         document.addEventListener('mousemove', move);
-        document.addEventListener('mouseup',  end);
         document.addEventListener('touchmove', move);
+        document.addEventListener('mouseup',  end);
         document.addEventListener('touchend', end);
     }
     
-    var _dnd = dnd;
-    element.addEventListener('mousedown', _dnd); // для мыши
-    element.addEventListener('touchstart', _dnd, {passive:true}); // для сенсорного дисплея
+    element.addEventListener('mousedown', init_start); // для мыши
+    element.addEventListener('touchstart', init_start, {passive:true}); // для сенсорного дисплея
 }
 
 /* ------------------ for WI-FI Relay ------------------ */
@@ -478,20 +490,76 @@ class BtnPanel {
         this.opts = opts;
         
         this.ev_click = this.ev_click.bind(this);
-        this.ev_btns_import = this.ev_btns_import.bind(this);
         this.ev_add = this.ev_add.bind(this);
         this.ev_edit_click = this.ev_edit_click.bind(this);
         this.ev_edit_blur = this.ev_edit_blur.bind(this);
         this.opts.btnpanel.addEventListener('click', this.ev_click);
-
+        this.opts.btnpanel.addEventListener('dragover', this.ev_dnd_insert);
+        
         this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
         this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
         this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
         
         this.build_panel(this.opts.initial_btns);
         this.set_mode('using');
+        
+        /*
+         * e.clientX - позиция курсора относительно окна просмтра
+         * e.pageX - позиция курсора относительно страницы (e.clientX + window.pageXOffset)
+         * window.pageXOffset (window.scrollX) - смещение страницы относительно окна просмотра при пролистывании
+         */
+        
+        DND(this.opts.btns, {
+            down: function(e, data) {
+                if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                let el = e.target;
+                if (el.classList.contains('btns_button')) {
+
+                    data['shiftX'] = e.pageX - e.target.getBoundingClientRect().left;
+                    data['shiftY'] = e.pageY - e.target.getBoundingClientRect().top;
+
+                    el.style.position = 'fixed';
+                    data.bp.d = true;
+                }
+            },
+            move: function(e, data) {
+                if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                let el = e.target;
+
+                if (el.classList.contains('btns_button')) {
+                
+                    var left = e.pageX - data['shiftX'];
+                    var top = e.pageY - data['shiftY'];
+
+                    el.style.left = left+'px';
+                    el.style.top = top+'px';
+                }
+            },
+            up: function(e, data) {
+                if (data['isSensorDisplay'] && e.touches) e = e.changedTouches[0];
+                let el = e.target;
+                
+                el.hidden = true;
+                let under_el = document.elementFromPoint(e.clientX, e.clientY);
+                el.hidden = false;
+                
+                if (el.classList.contains('btns_button')) {
+
+                    if (under_el !== null && (under_el.classList.contains('btns_button') || under_el.classList.contains('btns_group'))) {
+                        under_el.parentNode.insertBefore(el, under_el);
+                    }
+                    
+                    el.style.position = 'static';
+                    el.style.top = '';
+                    el.style.left = '';
+                    data.bp.d = false;
+                }
+            },
+            data: {bp:this}
+        });
     }
     
+   
     set_mode(mode) {
         this.opts.mode = mode;
         
