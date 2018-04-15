@@ -72,8 +72,6 @@ function RA_raw(action, data, options) {
                   } else {
                       if (options['func_fatal']) options['func_fatal']('Неизветсная ошибка');
                   }
-                  if (window.grecaptcha && data['grecaptcha_widget_id']) grecaptcha.reset(data['grecaptcha_widget_id']); // сбрасываем капчу гугла
-                  if (options['wb_captcha_img']) wb_captcha_reload(options['wb_captcha_img']); // сбрасываем капчу websitebaker
     });
 }
 
@@ -143,30 +141,28 @@ function RA_ButtonProgress(action, data, button, sending_text, func_success, opt
 }
 
 function showNotification(message, _type, time) {
-    time = time || 7000;
-    var notes = document.getElementById('notifications');
+    time = time || 8000;
+    var notes = document.getElementById('notes');
     if (!notes) {
-        notes = document.createElement('div'); notes.id = 'notifications';
-        notes.style.position = "fixed";
-        notes.style.top = "15px";
-        notes.style.right = "15px";
+        notes = document.createElement('div'); notes.id = 'notes';
         document.body.appendChild(notes);
     }
     notification_colors = {'note': '#3f3', 'error':'#f55'};
+    if (notes.children.length > 2) notes.lastChild.remove();
     
     var note = document.createElement('div');
     note.style.color = notification_colors[_type];
-    note.style.background = "#222";
-    note.style.padding = "20px";
-    note.style.marginBottom = "10px";
-    note.className = 'notification';
-    note.innerHTML = message;//note.appendChild(document.createTextNode(message));
-    notes.appendChild(note);
-    zi.add(notes, 'top');
-    setTimeout(function(){zi.remove(note);note.remove();}, time);
+    note.className = 'note';
+    note.innerHTML = message;
+    notes.insertBefore(note, notes.firstChild);
+    if (typeof zi !== 'undefined') zi.add(notes, 'top');
+    //setTimeout(function(){if (typeof zi !== 'undefined') zi.remove(note);note.remove();}, time);
 }
 
 function RA_Notification(action, data, func_success, options) {
+    options.sending_text = options.sending_text || "Отправляется...";
+    showNotification(options.sending_text, 'note', 2000);
+    
     RA_raw(action, data, {
         func_success: function(res) {
             var timeout = res['timeout'] !== undefined ? res['timeout'] : 3000 ;
@@ -181,69 +177,17 @@ function RA_Notification(action, data, func_success, options) {
             showNotification('неизвестная ошибка(', 'error');
         },
         url: options['url'],
-        func_after: options['func_after'],
-        wb_captcha_img: options['wb_captcha_img']
+        func_after: options['func_after']
     })
 }
 
-// for checkboxes and [radio]
-function set_checkbox(checkboxes, values) {
-    // form = document.forms['имя формы']; checkboxes = form['имя флажков'];
-    for (var i=0; i< checkboxes.length; i++ ) {
-        var cb = checkboxes[i];
-        if (values.indexOf(cb.value) == -1) continue;
-        cb.checked = true;
-    }
-}
-
-function get_checkbox(checkboxes) {
-    var checkboxes_arr = [];
-    for (var i=0; i< checkboxes.length; i++ ) {
-        var cb = checkboxes[i];
-        if (!cb.checked) continue;
-        checkboxes_arr[checkboxes_arr.length] = cb.value;
-    }
-    return checkboxes_arr;
-}
-
-
-function proccess_value(value, name, form, direction) {
-    var ret = [value, undefined];
-    
-    if (form.name === undefined) return ret;
-    if (process_form_fields[form.name] === undefined) return ret;
-    if (process_form_fields[form.name][name] === undefined) return ret;
-    if (process_form_fields[form.name][name][direction] === undefined) return ret;
-    var pff = process_form_fields[form.name][name][direction];
-    
-    var results = [];
-    
-    if (direction == 'fromForm') {
-        
-        if (pff['filterBeforeTransform'] !== undefined) {
-            var result1 = pff['filterBeforeTransform'](value);
-            if (result1 !== undefined || result1 !== true) return [value, result1];
-        }
-        if (pff['transformValue'] !== undefined) value = pff['transformValue'](value);
-        if (pff['filterAfterTransform']  !== undefined) {
-            var result2 = pff['filterAfterTransform'](value);
-            if (result2 !== undefined || result2 !== true) return [value, result2];
-        }
-        
-    }
-    
-    return [value, undefined];
-    
-}
-
 // можно передавать массивы в качестве значения
-function get_form_fields(form, ignore_fields, use_filter) {
+function get_form_fields(form, ignore_fields) {
     var el,
     value,
     data = {},
     ret;
     ignore_fields = ignore_fields || [];
-    use_filter = use_filter || false;
     
     for (var i = 0; i< form.elements.length; i+=1) {
         el = form.elements[i];
@@ -253,14 +197,6 @@ function get_form_fields(form, ignore_fields, use_filter) {
             if (el.type == 'checkbox' || el.type == 'radio') value = el.checked;//if (el.hasOwnProperty('checked')) value = el.checked;
             else if (el.type == 'file') value = el.files;
             else value = el.value;
-            
-            // фильтрация и преобразования значения
-            if (use_filter) {
-                ret = proccess_value(value, el.name, form, 'fromForm')
-                if (ret[1] == undefined || ret[1] == true) value = ret[0];
-                else return {'data': data, 'is_error':true,  'error': ret[1]};
-            }
-            
         } else { // если это коллекция элементов с одинаковым 'name'
             value = [];
             for (var j=0; j < form[el.name].length; j++ ) {
@@ -278,8 +214,7 @@ function get_form_fields(form, ignore_fields, use_filter) {
         data[el.name] = value;
     }
     
-    if (use_filter) return {'data': data, 'is_error':false};
-    else return data;
+    return data;
 }
 
 // функци options['func_filter'] в случае верности возвращает true, иначе - текст ошибки.
@@ -296,7 +231,7 @@ function sendform(button, action, options) {
     // значения по умолчанию
     if (options['func_transform_fields'] === undefined) { options['func_transform_fields'] = function(fields, form) {return fields;}; }
     if (options['func_filter'] === undefined) { options['func_filter'] = function(fields) {return true;}; }
-    if (options['answer_type'] === undefined) { options['answer_type'] = 'ButtonProgress'; }
+    if (options['answer_type'] === undefined) { options['answer_type'] = 'Notification'; }
     
     // получаем данные с формы, модифицируем и фильтруем
     if (options['form'] !== undefined) { var fields = get_form_fields(options['form']); }
@@ -535,6 +470,9 @@ class BtnPanel {
             down: function(e, data) {
                 if (e.touches) e = e.touches[0];
                 let el = e.target;
+
+                if (el.classList.contains('btns_edit')) return;
+
                 if (el.classList.contains('btns_button')) {
 
                     data['shiftX'] = e.pageX - e.target.getBoundingClientRect().left;
@@ -547,6 +485,8 @@ class BtnPanel {
             move: function(e, data) {
                 if (e.changedTouches) e = e.changedTouches[0];
                 let el = e.target;
+                
+                if (el.classList.contains('btns_edit')) return;
 
                 if (el.classList.contains('btns_button')) {
                 
@@ -560,6 +500,8 @@ class BtnPanel {
             up: function(e, data) {
                 if (e.changedTouches) e = e.changedTouches[0];
                 let el = e.target;
+                
+                if (el.classList.contains('btns_edit')) return;
                 
                 //el.hidden = true;
                 //let under_el = document.elementFromPoint(e.clientX, e.clientY);
