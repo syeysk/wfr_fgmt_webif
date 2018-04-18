@@ -156,7 +156,7 @@ function showNotification(message, _type, time) {
     note.innerHTML = message;
     notes.insertBefore(note, notes.firstChild);
     if (typeof zi !== 'undefined') zi.add(notes, 'top');
-    //setTimeout(function(){if (typeof zi !== 'undefined') zi.remove(note);note.remove();}, time);
+    setTimeout(function(){if (typeof zi !== 'undefined') zi.remove(note);note.remove();}, time);
 }
 
 function RA_Notification(action, data, func_success, options) {
@@ -224,7 +224,7 @@ function sendform(button, action, options) {
     options['func_success'] = options['func_success'] || options['func_after_success'];
     
     // получаем форму, если указана
-    if (options['form'] === undefined) {
+    if (options['form'] === undefined && button) {
         if (button.form != null && button.form != undefined) options['form'] = button.form;
         else if (button.closest('form') != null && button.closest('form') != undefined) options['form'] = button.closest('form');
     }
@@ -337,48 +337,58 @@ function set_params(params, options) {
 
 function DND(element, options) {
     function end(e) {
+        console.log('Выход');
         document.removeEventListener('mousemove', move);
         document.removeEventListener('mouseup', end);
         document.removeEventListener('touchmove', move);
         document.removeEventListener('toucend', end);
         document.body.onmousedown = function() {return true;}; // включаем  выделение текста
         if (!options.first) {
-            if (options['up']) options['up'](e, options['data']);
+            if (options['up']) options['up'](e, options);
             var over_el = get_over_el(e);
-            if (options['drop']) options['drop'](e, options['data'], over_el, options.prev_over_el);
-            if (options['overout']) options['overout'](e, options['data'], options.prev_over_el);
+            if (options['drop']) options['drop'](e, options, over_el, options.prev_over_el);
+            if (options['overout']) options['overout'](e, options, options.prev_over_el);
         }
     }
     
     function move(e) {
         if (options.first) {
+            console.log('Первое передвижение. Определяем, клик это или движение');
             if (check_start(e)) {
-                if (options['down']) options['down'](e, options['data']);
+                console.log('Передвижение подтверждено. Это движение');
+                if (options['down']) options['down'](e, options);
                 options.first = false;
-            } else {end(e); return;}
+            } else {console.log('Передвижение не подтвержденою Это клик'); end(e); return;}
         }
-        if (options['move']) options['move'](e, options['data']);
+        var over_el = get_over_el(e); // координаты меняются во время движенеия
+        options.el_over = over_el;
 
-        var over_el = get_over_el(e);
-        if (over_el !== options.prev_over_el) {
-            if (options['overenter']) options['overenter'](e, options['data'], over_el);
-            if (options['overout']) options['overout'](e, options['data'], options.prev_over_el);
-        }
+        if (options['move']) options['move'](e, options);
+
+        //if (over_el !== options.prev_over_el && over_el.target !== options.e_moved.target) { // координаты не меняются. Фиксирутся только факт наведения/убирания.
+            if (options['overenter']) options['overenter'](e, options, over_el);
+            if (options['overout']) options['overout'](e, options, options.prev_over_el);
+        //}
         options.prev_over_el = over_el;
     }
     
     function check_start(e) {
+        //return true;
         var e = (e.changedTouches) ? e.changedTouches[0] : e;
-        return Math.abs(options.downX - e.pageX) > 2 && Math.abs(options.downY - e.pageY) > 2;
+        console.log('    ', Math.abs(options.downX - e.pageX), Math.abs(options.downY - e.pageY));
+        return Math.abs(options.downX - e.pageX) >= 1 || Math.abs(options.downY - e.pageY) >= 1;
     }
 
     function init_start(e) { // drag and drop
+        var _e = (e.touches) ? e.touches[0] : e;
+        if (!_e.target.closest(options.moved)) return;
+        console.log('Инициализация...');
         e.currentTarget.ondragstart = function() {return false;}; // выключаем стандартный drag-n-drop
         document.body.onmousedown = function() {return false;}; // выключаем  выделение текста
         options['data'] = options['data'] || {};
         options['data']['isSensorDisplay'] = e.touches === undefined ? false : true
         
-        var _e = (e.touches) ? e.touches[0] : e;
+        options.e_moved = _e;
         options.downX = _e.pageX; options.downY = _e.pageY;options.first = true;
         options.prev_over_el = null;
         
@@ -390,9 +400,9 @@ function DND(element, options) {
     
     function get_over_el(e) {
         var e = (e.changedTouches) ? e.changedTouches[0] : e;;
-        el.hidden = true;
+        options.e_moved.target.hidden = true;
         var over_el = document.elementFromPoint(e.clientX, e.clientY);
-        el.hidden = false;
+        options.e_moved.target.hidden = false;
         return over_el;
         //if (over_el === null) return;
     }
@@ -403,12 +413,45 @@ function DND(element, options) {
 
 /* ------------------ for WI-FI Relay ------------------ */
 
+/* Действие при нажатии на кнопку изменения состояния канала */
+
+function btn_click(e) {
+    if (!e.target.classList.contains('btns_button')) return;
+    if (e.target.classList.contains('btns_editing')) return;
+    var input = e.target;
+    sendform(input, input.dataset.name=='led'?'led':'gpio', {data:{value:input.dataset.value=='0'?'1':'0', channel:input.dataset.name},func_success: function(res, input) {input.dataset.value=res.data.value;}, arg_func_success:input});
+}
+
+/* Обновляет всю информацию на странице */
+
+function update_data() {
+    sendform(null, 'get_data', {func_success: function(res, arg) {
+        //alert(JSON.stringify(res));
+        for (let btn of document.body.querySelectorAll('.btns_button')) {
+            if (btn.classList.contains('btns_editing')) continue;
+             
+             if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
+             else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) && 1;
+        }
+        document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
+        document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
+        
+        document.getElementById('form_wifi_mode').wifi_mode.value = res.data.settings.wifi_mode;
+        
+        document.getElementById('form_wifi_wifi').password.value = res.data.settings.password;
+        document.getElementById('form_wifi_wifi').ssid.value = res.data.settings.ssid;
+        document.getElementById('form_wifi_wifi').passwordAP.value = res.data.settings.passwordAP;
+        document.getElementById('form_wifi_wifi').ssidAP.value = res.data.settings.ssidAP;
+    }});
+}
+
 /*
  * Класс для панел навигацими по вкладкам
  */
 class ContentShower {
     
     /* opts.navpanel, opts.content_prefix, opts.content_active
+     * opts.func_after_show
      */
     constructor(opts) {
         
@@ -418,6 +461,7 @@ class ContentShower {
         this.ev_show = this.ev_show.bind(this);
         
         opts.navpanel.addEventListener('click', this.ev_show);
+        
         
     }
     
@@ -435,447 +479,6 @@ class ContentShower {
     ev_show(e) {
         if (!e.target.dataset.content) return;
         this.show(e.target.dataset.content);
+        if (this.opts.func_after_show) this.opts.func_after_show();
     }
-}
-
-class BtnPanel {
-
-    /* opts.btnpanel, opts.class_prefix
-     */
-    constructor(opts) {
-        
-        this.opts = opts;
-        
-        this.ev_click = this.ev_click.bind(this);
-        this.ev_add = this.ev_add.bind(this);
-        this.ev_edit_click = this.ev_edit_click.bind(this);
-        this.ev_edit_blur = this.ev_edit_blur.bind(this);
-        this.opts.btnpanel.addEventListener('click', this.ev_click);
-        this.opts.btnpanel.addEventListener('dragover', this.ev_dnd_insert);
-        
-        this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
-        this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
-        this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
-        
-        this.build_panel(this.opts.initial_btns);
-        this.set_mode('using');
-        
-        /*
-         * e.clientX - позиция курсора относительно окна просмтра
-         * e.pageX - позиция курсора относительно страницы (e.clientX + window.pageXOffset)
-         * window.pageXOffset (window.scrollX) - смещение страницы относительно окна просмотра при пролистывании
-         */
-        
-        DND(this.opts.btns, {
-            down: function(e, data) {
-                if (e.touches) e = e.touches[0];
-                let el = e.target;
-
-                if (el.classList.contains('btns_edit')) return;
-
-                if (el.classList.contains('btns_button')) {
-
-                    data['shiftX'] = e.pageX - e.target.getBoundingClientRect().left;
-                    data['shiftY'] = e.pageY - e.target.getBoundingClientRect().top;
-
-                    el.style.position = 'fixed';
-                    data.bp.d = true;
-                }
-            },
-            move: function(e, data) {
-                if (e.changedTouches) e = e.changedTouches[0];
-                let el = e.target;
-                
-                if (el.classList.contains('btns_edit')) return;
-
-                if (el.classList.contains('btns_button')) {
-                
-                    var left = e.pageX - data['shiftX'];
-                    var top = e.pageY - data['shiftY'];
-
-                    el.style.left = left+'px';
-                    el.style.top = top+'px';
-                }
-            },
-            up: function(e, data) {
-                if (e.changedTouches) e = e.changedTouches[0];
-                let el = e.target;
-                
-                if (el.classList.contains('btns_edit')) return;
-                
-                //el.hidden = true;
-                //let under_el = document.elementFromPoint(e.clientX, e.clientY);
-                //el.hidden = false;
-                
-                if (el.classList.contains('btns_button')) {
-
-                    //if (under_el !== null && (under_el.classList.contains('btns_button') || under_el.classList.contains('btns_group'))) {
-                    //    under_el.parentNode.insertBefore(el, under_el);
-                    //}
-                    
-                    el.style.position = 'static';
-                    el.style.top = '';
-                    el.style.left = '';
-                    data.bp.d = false;
-                }
-            },
-            overenter: function(e, data, over_el) {
-                if (over_el === null) return;
-                if (over_el.classList.contains('btns_button')) {
-                    over_el.style.marginLeft = '20px';
-                }
-            },
-            overout: function(e, data, over_el) {
-                if (over_el === null) return;
-                if (over_el.classList.contains('btns_button')) {
-                    over_el.style.marginLeft = '';
-                }
-            },
-            drop: function(e, data, overenter_el, overout_el) {
-                if (e.changedTouches) e = e.changedTouches[0];
-                let el = e.target;
-
-                if (overout_el === null) return;
-                if (overout_el.classList.contains('btns_button')) {
-                    overout_el.parentNode.insertBefore(el, overout_el);
-                }
-            },
-            data: {bp:this}
-        });
-    }
-    
-   
-    set_mode(mode) {
-        this.opts.mode = mode;
-        
-        if (mode == 'using') {
-            this.opts.btn_mode_editing.classList.remove('hidden');
-            this.opts.btn_mode_using.classList.add('hidden');
-            this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.add('hidden')});
-        } else if (mode == 'editing') {
-            this.opts.btn_mode_editing.classList.add('hidden');
-            this.opts.btn_mode_using.classList.remove('hidden');
-            this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.remove('hidden')});
-        }
-    }
-
-    ev_edit_click(e) {
-
-        let c = e.target.classList;
-        let el = e.target;
-        
-        if (c.contains('btn_edit_delete')) {
-            let w = W.get_w(el);
-            let btn = W.get_data(w);
-
-            if (btn.classList.contains('btns_button'))  btn.remove();
-            else if (btn.classList.contains('btns_group_name')) btn.parentElement.remove();
-            else if (btn.classList.contains('btns_category_name')) btn.parentElement.remove();
-            
-            W.close(w);
-        } else if (c.contains('btn_edit_')) {
-            
-        }
-    }
-
-    ev_edit_blur(e) {
-        
-        if (!(e.keyCode === 13 || e.keyCode === undefined)) return;
-        
-        let c = e.target.classList;
-        let el = e.target;
-        
-        if (!el.value.trim()) return;
-        
-        if (c.contains('btn_edit_rename')) {
-            let w = W.get_w(el);
-            let btn = W.get_data(w);
-            
-            if (btn.classList.contains('btns_button')) btn.value = el.value;
-            else if (btn.classList.contains('btns_group_name')) btn.textContent = el.value;
-            else if (btn.classList.contains('btns_category_name')) btn.textContent = el.value;
-            
-            W.close(w);
-        }
-    }
-    
-    ev_click(e) {
-        
-        let c = e.target.classList;
-        let el = e.target;
-        
-        if (c.contains(this.opts.class_prefix+'btn_mode_editing')) {
-            this.set_mode('editing');
-        } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
-            this.set_mode('using');
-
-        } else if (c.contains('btns_button')) {
-            
-            if (c.contains('btns_editing')) return;
-            
-            if (this.opts.mode == 'using') {
-                console.log('нажата кнопка "'+el.value+'"');
-            } else if (this.opts.mode == 'editing') {
-                let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
-                if (!w) return;
-                W.set_data(w, el);
-                w.addEventListener('click', this.ev_edit_click);
-                w.querySelector('.btn_edit_rename').value=el.value;
-                w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
-                w.querySelector('.btn_edit_rename').addEventListener('keyup', this.ev_edit_blur);
-            }
-
-        } else if (c.contains('btns_group_name') && this.opts.mode == 'editing') {
-
-            if (el.closest('.btns_editing')) return;
-            
-            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
-            if (!w) return;
-            W.set_data(w, el);
-            w.addEventListener('click', this.ev_edit_click);
-            w.querySelector('.btn_edit_rename').value=el.textContent;
-            w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
-
-        } else if (c.contains('btns_category_name') && this.opts.mode == 'editing') {
-            
-            if (el.closest('.btns_editing')) return;
-            
-            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
-            if (!w) return;
-            W.set_data(w, el);
-            w.addEventListener('click', this.ev_edit_click);
-            w.querySelector('.btn_edit_rename').value=el.textContent;
-            w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
-            
-            
-        } else if (c.contains(this.opts.class_prefix+'btn_import') || c.contains(this.opts.class_prefix+'btn_export')) {
-            let w = W.open('btn_w_ei', {text_title:el.value, max_count:1});
-            if (!w) return;
-            
-            let data;
-            if (c.contains(this.opts.class_prefix+'btn_import')) data = '';
-            else if (c.contains(this.opts.class_prefix+'btn_export')) data = JSON.stringify(this.btns_export());
-            
-            w.querySelector('.btn_ei').value = el.value;
-            w.querySelector('textarea').textContent = data;
-            w.querySelector('textarea').focus();
-            if (c.contains(this.opts.class_prefix+'btn_import')) {
-                w.querySelector('input').addEventListener('click', this.ev_btns_import);
-            } else {
-                w.querySelector('input').remove();
-                //w.querySelector('input').value = 'Скопировать в буфер';
-                //w.querySelector('input').addEventListener('click', function(e) {console.log(e.target.parentElement.querySelector('textarea').value);});
-            }
-        }
-    }
-
-    
-    ev_add(e) {
-        
-        if (!(e.keyCode === 13 || e.keyCode === undefined)) return;
-
-        let _el = e.target;
-
-        let data = { name: _el.value.trim() };
-        if (data.name == '') return;
-        _el.value='';
-
-        if (_el.classList.contains('btns_category_name')) {
-            let el = this.build_panel_category(data, this.opts.btns, false);
-            this.build_panel_button(null, el);
-            this.build_panel_group(null, el);
-        } else if (_el.classList.contains('btns_button')) {
-            this.build_panel_button(data, _el.parentElement, false);
-        } else if (_el.classList.contains('btns_group_name')) {
-            let el = this.build_panel_group(data, _el.closest('.btns_group').parentElement, false);
-            this.build_panel_button(null, el);
-            this.build_panel_group(null, el);
-        }
-        
-    }
-
-    build_panel_button(button, parent_el, is_append=true) {
-
-        let button_el = document.createElement('input');
-        
-        if (button) {
-        
-            button_el.type='button';
-            button_el.value=button.name;
-            button_el.className='btns_button';
-            
-            if (button.ch_name !== undefined) button_el.dataset.name = button.ch_name;
-            if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
-                
-        } else {
-            
-            let ph = 'новая кнопка...';
-
-            button_el.type='text';
-            button_el.placeholder=ph;
-            button_el.className='btns_button btns_editing';
-            button_el.size=ph.length-4;
-            
-            button_el.addEventListener('blur', this.ev_add);
-            button_el.addEventListener('keyup', this.ev_add);
-            
-        }
-        
-        if (is_append) parent_el.appendChild(button_el);
-        else parent_el.insertBefore(button_el, parent_el.lastChild.previousElementSibling);
-        return button_el;
-        
-    }
-    
-    build_panel_group(group, parent_el, is_append=true) {
-
-        let group_name_el, group_el = document.createElement('div');
-        
-        if (group) {
-
-            group_el.className='btns_group';
-    
-            group_name_el = document.createElement('span');
-            group_name_el.textContent=group.name;
-            group_name_el.className='btns_group_name';
-        
-        } else {
-            
-            let ph = 'новая группа...';
- 
-            group_el.className='btns_group btns_editing';
-
-            group_name_el = document.createElement('input');
-            group_name_el.placeholder=ph;
-            group_name_el.size=ph.length-4
-            group_name_el.className='btns_group_name';
-            
-            group_name_el.addEventListener('blur', this.ev_add);
-            group_name_el.addEventListener('keyup', this.ev_add);
-            
-        }
-
-        group_el.appendChild(group_name_el);
-        if (is_append) parent_el.appendChild(group_el);
-        else parent_el.insertBefore(group_el, parent_el.lastChild.previousElementSibling);
-        
-        return group_el;
-        
-    }
-
-    build_panel_category(category, parent_el, is_append=true) {
-        
-        let category_name_el, category_el = document.createElement('div');
-
-        if (category) {
-
-            category_el.className='btns_category';
-            category_name_el = document.createElement('div'/*, {className:'btns_category_name'}*/);
-            category_name_el.textContent = category.name;
-
-        } else {
- 
-            category_el.className='btns_category btns_editing';
-            category_name_el = document.createElement('input');
-            category_name_el.type = 'text';
-            category_name_el.placeholder = 'новая категория...';
-            
-            category_name_el.addEventListener('blur', this.ev_add);
-            category_name_el.addEventListener('keyup', this.ev_add);
-
-        }
-
-        category_name_el.className='btns_category_name';
-        category_el.appendChild(category_name_el);
-        
-        if (is_append) parent_el.appendChild(category_el);
-        else parent_el.insertBefore(category_el, parent_el.lastChild);
-        return category_el;
-
-    }
-    
-    build_panel_children(children, parent_el) {
-        if (!children) return;
-
-        children.forEach(function(child, i, children) {
-        //for (let child of children) {
-
-            if (child.type == 'button') {
-                
-                this.build_panel_button(child, parent_el);
-
-            } else if (child.type == 'group') {
-                
-                let group_el = this.build_panel_group(child, parent_el);
-                this.build_panel_children(child.children, group_el)
-            }
-            
-            if (i === children.length-1) {
-                this.build_panel_button(null, parent_el);
-                this.build_panel_group(null, parent_el);
-            }
-            
-        }, this);
-    }
-
-    build_panel(categories) {
-
-        for (let category of categories) {
-            let category_el = this.build_panel_category(category, this.opts.btns);
-            this.build_panel_children(category.children, category_el);
-        }
-        
-        this.build_panel_category(null, this.opts.btns);
-    }
-    
-    btns_import(data) {
-        this.opts.btns.innerHTML = '';
-        this.build_panel(data);
-        this.set_mode(this.opts.mode);
-    }
-    
-    ev_btns_import(e) {
-        let data = e.target.parentElement.querySelector('textarea').value;
-        this.btns_import(JSON.parse(data));
-    }
-    
-    el2obj(el, type) {
-        if (el.classList.contains('btns_button')) { return {
-            type:'button',
-            name:el.value,
-            ch_name:el.dataset.name,
-            ch_value:el.dataset.value
-        };} else if (el.classList.contains('btns_group')) { return {
-            type:'group',
-            name:el.firstChild.textContent,
-            children:[]
-        };} else if (el.classList.contains('btns_category')) { return {
-            name:el.firstChild.textContent,
-            children:[]
-        };} else { return false; }
-    }
-    
-    btns_export_children(parent_el, data) {
-        
-        let child;
-        
-        for (let child_el of parent_el.children) {
-            if (child_el.classList.contains('btns_editing')) continue;
-
-            child = this.el2obj(child_el);
-            if (child === false) continue;
-            data.push(child);
-
-            if (child_el.classList.contains('btns_group') || child_el.classList.contains('btns_category')) this.btns_export_children(child_el, child.children);
-
-        }
-    }
-    
-    btns_export() {
-        let data = [];
-        this.btns_export_children(this.opts.btns, data);
-        //let text = JSON.stringify(data) == JSON.stringify(this.opts.initial_btns) ? 'true' : 'false'; console.log(text);
-        return data;
-    }
-    
 }

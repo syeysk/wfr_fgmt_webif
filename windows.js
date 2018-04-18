@@ -147,25 +147,26 @@ function Window() {
             // добавляем событие drag'n'drop
             var wtitle = self.get_wtitle(w);
             DND(wtitle, {
-                down: function(e, data) {
-                    if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                moved: '.windowTitle',
+                down: function(e, opts) {
+                    if (opts.data['isSensorDisplay'] && e.touches) e = e.touches[0];
                     // необязательны, без них курсор будет смещаться к углу захватываемого объекта
-                    data['shiftX'] = e.clientX - data['wtitle'].getBoundingClientRect().left;
-                    data['shiftY'] = e.clientY - data['wtitle'].getBoundingClientRect().top;
-                    if (self.zi) self.zi.lift(data['w'], 'top')
+                    opts.data['shiftX'] = e.clientX - opts.data['wtitle'].getBoundingClientRect().left;
+                    opts.data['shiftY'] = e.clientY - opts.data['wtitle'].getBoundingClientRect().top;
+                    if (self.zi) self.zi.lift(opts.data['w'], 'top')
                 },
-                move: function(e, data) {
-                    if (data['isSensorDisplay'] && e.touches) e = e.touches[0];
-                        var left = e.clientX - data['shiftX'];
-                        var top = e.clientY - data['shiftY'];
-                        var screen_width  = document.documentElement.clientWidth-parseInt(getComputedStyle(data['wtitle']).width);
-                        var screen_height = document.documentElement.clientHeight-parseInt(getComputedStyle(data['wtitle']).height);
+                move: function(e, opts) {
+                    if (opts.data['isSensorDisplay'] && e.touches) e = e.touches[0];
+                        var left = e.clientX - opts.data['shiftX'];
+                        var top = e.clientY - opts.data['shiftY'];
+                        var screen_width  = document.documentElement.clientWidth-parseInt(getComputedStyle(opts.data['wtitle']).width);
+                        var screen_height = document.documentElement.clientHeight-parseInt(getComputedStyle(opts.data['wtitle']).height);
                         if (left < 0) {left = 0;}
                         else if (left > screen_width) {left = screen_width; }
-                        data['w'].style.left = left+ "px";
+                        opts.data['w'].style.left = left+ "px";
                         if (top < 0) {top = 0;}
                         else if (top > screen_height) {top = screen_height; }
-                        data['w'].style.top = top + "px";
+                        opts.data['w'].style.top = top + "px";
                 },
                 data: {
                         wtitle: self.get_wtitle(w),
@@ -322,8 +323,6 @@ var W = new AdvancedWindow();
 /* --------------------------------
  *           Gallery
  *-------------------------------*/
-
-"use strict"
 
 class Gallery {
     

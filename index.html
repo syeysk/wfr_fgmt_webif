@@ -4,52 +4,54 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width">
         <title>Реле WI-FI v0.3</title>
-        <script src="functions_embedded.js">var i;</script>
+        <script src="functions_embedded.js"> </script>
+        <script src="class.btn_panel.js"> </script>
         <link rel="stylesheet" type="text/css" href="index.css">
         
-        <!--<script src="windows.js"></script>
-        <link rel="stylesheet" type="text/css" href="windows.css">-->
+        <script src="windows.js"> </script>
     </head>
     <body>
     
-        <!--<div class='windowBody' id='btn_w_editbtn'>
-            <input type='text' value='' class='btn_edit_rename'><br>
+        <div class='windowBody' id='btn_w_editbtn'>
+            Имя: <input type='text' value='' class='btn_edit_rename'><br>
+            Канал: <input type='text' value='' class='btn_edit_channel'><br>
             <input type='button' value='Удалить' class='btn_edit_delete'><br>
         </div>
 
 
         <div class='windowBody' id='btn_w_ei'>
-            <textarea style='width:95%;' rows='10'></textarea>
+            <textarea style='width:95%;' rows='10'> </textarea>
             <br>
             <input type='button' value='' class='btn_ei'>
-        </div>-->
-        
-        <script>
-        </script>
+        </div>
     
         <div class="navpanel">
             <div data-content="std">Стандарт</div>
-            <!--<div data-content="btn">Панель</div>-->
+            <div data-content="btn">Панель</div>
             <!--<div data-content="dev">Устройства</div>-->
             <!--<div data-content="event">События</div>-->
             <div data-content="set">Настройки</div>
         </div>
 
         <div class="content" id="content_std">
-            <input type="button" value='LED' data-value='{% digitalRead(2) %}'><br>
+            <div id="btns">
+                <input type="button" value='LED' data-value='0' data-name="led" class='btns_button'><br>
+            </div>
+            <br>Время работы: <span id="stat_time"></span>
+            <br>Напряжение: <span id="stat_vcc"></span> V
         </div>
 
-        <!--<div class="content" id="content_btn">
+        <div class="content" id="content_btn">
             <div class='content_block_right'>
                 <input class='btnpanel_btn_import btns_editing' type='button' value="Импорт">
                 <input class='btnpanel_btn_export btns_editing' type='button' value="Экспорт">
-                <input class='btnpanel_btn_mode_editing' type='button' value="Редактировать"><input class='btnpanel_btn_mode_using' type='button' value="Завершить редактирование">-->
+                <input class='btnpanel_btn_mode_editing' type='button' value="Редактировать"><input class='btnpanel_btn_mode_using' type='button' value="Завершить редактирование">
                 <!--<br>
                 <span>Настройка действий кнопок осуществляется в разделе "События"</span>-->
-            <!--</div>
+            </div>
             
             <div class='btnpanel_btns'>
-            </div>-->
+            </div>
 
             <!--<div >
                 <form>
@@ -69,7 +71,7 @@
                 </form>
             </div>-->
             
-        <!--</div>-->
+        </div>
         
         <!--<div class="content" id="content_event">
         
@@ -126,26 +128,26 @@
         
             <br>
         
-            <form class='settings'>
+            <form class='settings' id="form_wifi_wifi">
                 <fieldset><legend>Настройки WI-FI</legend>
             
                 <br><b>Точка доступа</b><br>
                 <table>
                     <tr>
-                        <td>Имя сети:</td> <td> <input type="text" name='ssidAP' value='{% ee_data.ssidAP %}'> </td>
+                        <td>Имя сети:</td> <td> <input type="text" name='ssidAP'> </td>
                     </tr>
                     <tr>
-                        <td> Пароль: </td> <td> <input type="text" name='passwordAP' value='{% ee_data.passwordAP %}'> </td>
+                        <td> Пароль: </td> <td> <input type="text" name='passwordAP'> </td>
                     </tr>
                 </table>
 
                 <br><b>Клиент</b><br>
                 <table>
                     <tr>
-                        <td>Имя сети:</td> <td> <input type="text" name='ssid' value='{% ee_data.ssid %}'> </td>
+                        <td>Имя сети:</td> <td> <input type="text" name='ssid'> </td>
                     </tr>
                     <tr>
-                        <td>Пароль: </td> <td> <input type="text" name='password' value='{% ee_data.password %}'> </td>
+                        <td>Пароль: </td> <td> <input type="text" name='password'> </td>
                     </tr>
                 </table>
                 
@@ -170,7 +172,7 @@
         <!--<div class="content" id="content_dev">
         </div>-->
         
-        <script src="after_load.js">var i;</script>
+        <script src="after_load.js"> </script>
         
     </body>
 </html>
