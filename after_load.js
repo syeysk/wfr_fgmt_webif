@@ -11,19 +11,20 @@ var cs = new ContentShower({
     func_after_show: update_data
 });
 
+// [{"name":"Кабинет","children":[{"type":"button","name":"Главный свет","ch_name":"6"},{"type":"group","name":"Настольный свет","children":[{"type":"button","name":"1","ch_name":"0"},{"type":"button","name":"2","ch_name":"1"},{"type":"button","name":"3","ch_name":"2"},{"type":"button","name":"4","ch_name":"3"},{"type":"button","name":"нижний","ch_name":"4"}]}]},{"name":"Кухня","children":[{"type":"group","name":"Газовая плита","children":[{"type":"button","name":"1","ch_name":"7"},{"type":"button","name":"2","ch_name":"8"},{"type":"button","name":"3","ch_name":"9"},{"type":"button","name":"4","ch_name":"10"},{"type":"button","name":"Духовка","ch_name":"11"}]},{"type":"button","name":"Главный свет","ch_name":"12"},{"type":"button","name":"Вытяжка","ch_name":"13"}]}]
+
 var bp = new BtnPanel({
     btnpanel: document.getElementById("content_btn"),
-    class_prefix: 'btnpanel_',
+    class_prefix: 'btnpanel_'/*,
     initial_btns: [
         {name:'Кабинет', children: [
-            {type:'button', name:'Главный свет', ch_name:5},
-            {type:'button', name:'Ночник', ch_name:6},
+            {type:'button', name:'Главный свет', ch_name:6},
             {type:'group', name:'Настольный свет', children:[
-                {type:'button', name:'1', ch_name:1},
-                {type:'button', name:'2', ch_name:2},
-                {type:'button', name:'3', ch_name:3},
-                {type:'button', name:'4', ch_name:4},
-                {type:'button', name:'нижний', ch_name:5}
+                {type:'button', name:'1', ch_name:0},
+                {type:'button', name:'2', ch_name:1},
+                {type:'button', name:'3', ch_name:2},
+                {type:'button', name:'4', ch_name:3},
+                {type:'button', name:'нижний', ch_name:4}
             ]}
         ]},
         {name:"Кухня",children:[
@@ -37,7 +38,7 @@ var bp = new BtnPanel({
             {type:"button",name:"Главный свет", ch_name:12},
             {type:"button",name:"Вытяжка", ch_name:13}
         ]}
-    ]
+    ]*/
 });
 
 

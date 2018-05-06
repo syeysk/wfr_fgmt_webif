@@ -413,6 +413,10 @@ function DND(element, options) {
 
 /* ------------------ for WI-FI Relay ------------------ */
 
+function ei_calc_size(field) {
+    field.parentElement.querySelector('.ei_size').textContent = field.value.length;
+}
+
 /* Действие при нажатии на кнопку изменения состояния канала */
 
 function btn_click(e) {
@@ -427,6 +431,9 @@ function btn_click(e) {
 function update_data() {
     sendform(null, 'get_data', {func_success: function(res, arg) {
         //alert(JSON.stringify(res));
+
+        bp.build_panel(JSON.parse(res.data.bt_panel)); // строим панель до обновления состояния кнопок
+
         for (let btn of document.body.querySelectorAll('.btns_button')) {
             if (btn.classList.contains('btns_editing')) continue;
              
@@ -435,14 +442,29 @@ function update_data() {
         }
         document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
         document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
-        
+
+        document.getElementById('stat_rtc').textContent = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day +" "+ res.data.stat.rtc_h +":"+ res.data.stat.rtc_m +":"+ res.data.stat.rtc_s  +" "+ res.data.stat.rtc_is;
+        let d = get_rtc_browser();
+        document.getElementById('stat_rtc_browser').textContent = d.date +" "+ d.time;
+
         document.getElementById('form_wifi_mode').wifi_mode.value = res.data.settings.wifi_mode;
         
         document.getElementById('form_wifi_wifi').password.value = res.data.settings.password;
         document.getElementById('form_wifi_wifi').ssid.value = res.data.settings.ssid;
         document.getElementById('form_wifi_wifi').passwordAP.value = res.data.settings.passwordAP;
         document.getElementById('form_wifi_wifi').ssidAP.value = res.data.settings.ssidAP;
+
+        document.getElementById('form_rtc').date.value = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day;
+        document.getElementById('form_rtc').time.value = res.data.stat.rtc_h +":"+ res.data.stat.rtc_m;
     }});
+}
+
+function get_rtc_browser() {
+    let d = new Date();
+    return {
+        date: d.getFullYear().toString().padStart(4, '0')+'-'+(d.getMonth()+1).toString().padStart(2, '0')+'-'+d.getDate().toString().padStart(2, '0'),
+        time: d.getHours().toString().padStart(2, '0')+':'+d.getMinutes().toString().padStart(2, '0') +':'+ d.getSeconds().toString().padStart(2, '0')
+    };
 }
 
 /*

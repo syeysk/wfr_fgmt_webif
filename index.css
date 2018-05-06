@@ -1,5 +1,5 @@
 fieldset {border-radius: 6px; border: 1px solid #eaa700}
-input {cursor:pointer;}
+input {cursor:pointer;margin:3px;padding:5px 3px;}
 legend {color:#9a6e01;}
 
 .content_block_right {text-align:right;}
@@ -133,38 +133,4 @@ input[data-value="1"][data-name] {background: green;}
     width: calc(100%);
     max-height: calc(95vh - 64px);
     overflow-y: auto;
-}
-
-/* --------------------------------
- *           Gallery
- * -------------------------------*/
-
-.gallery .windowTitle {
-    display: none;
-}
-.gallery {
-    background: #000000a3;
-    box-shadow: none;
-    border-radius: 0;
-    text-align: center;
-    max-width: none;
-    width: 100%;
-    top: 0;
-}
-.gallery .windowBody {
-    padding: 0;
-    max-height: none;
-    height: 100vh;
-}
-.gallery .main_image {
-    max-height: 100%;
-    padding: 50px 0 50px 0;
-}
-.gallery .buttons {
-    position: fixed;
-    bottom: 30px;
-    width:100%;
-}
-.gallery .buttons input {
-    padding: 5px 25px 5px 25px;
 }

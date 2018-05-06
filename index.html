@@ -20,7 +20,8 @@
 
 
         <div class='windowBody' id='btn_w_ei'>
-            <textarea style='width:95%;' rows='10'> </textarea>
+            <textarea style='width:95%;' rows='10' onkeyup="ei_calc_size(this)"> </textarea><br>
+            Количество байт: <span class="ei_size"> </span>
             <br>
             <input type='button' value='' class='btn_ei'>
         </div>
@@ -37,15 +38,31 @@
             <div id="btns">
                 <input type="button" value='LED' data-value='0' data-name="led" class='btns_button'><br>
             </div>
-            <br>Время работы: <span id="stat_time"></span>
-            <br>Напряжение: <span id="stat_vcc"></span> V
+            <div style="text-align:left;">
+                <br>
+                <b>Статистика</b>
+                <br>
+                <table>
+                    <tr>
+                        <td>Время работы: </td><td> <span id="stat_time"> </span></td>
+                    </tr><tr>
+                        <td>Текущее время модуля: </td><td> <span id="stat_rtc"> </span></td>
+                    </tr><tr>
+                        <td>Текущее время браузера: </td><td> <span id="stat_rtc_browser"> </span></td>
+                    </tr><!--<tr>
+                        <td>Текущее время сети: </td><td> <span id="stat_rtc"> </span></td>
+                    </tr>--><tr>
+                        <td>Напряжение: </td><td> <span id="stat_vcc"> </span> V </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div class="content" id="content_btn">
             <div class='content_block_right'>
                 <input class='btnpanel_btn_import btns_editing' type='button' value="Импорт">
                 <input class='btnpanel_btn_export btns_editing' type='button' value="Экспорт">
-                <input class='btnpanel_btn_mode_editing' type='button' value="Редактировать"><input class='btnpanel_btn_mode_using' type='button' value="Завершить редактирование">
+                <input class='btnpanel_btn_mode_editing' type='button' value="Редактировать"><input class='btnpanel_btn_mode_using' type='button' value="Сохранить и завершить редактирование">
                 <!--<br>
                 <span>Настройка действий кнопок осуществляется в разделе "События"</span>-->
             </div>
@@ -127,7 +144,7 @@
             </form>
         
             <br>
-        
+            
             <form class='settings' id="form_wifi_wifi">
                 <fieldset><legend>Настройки WI-FI</legend>
             
@@ -137,7 +154,7 @@
                         <td>Имя сети:</td> <td> <input type="text" name='ssidAP'> </td>
                     </tr>
                     <tr>
-                        <td> Пароль: </td> <td> <input type="text" name='passwordAP'> </td>
+                        <td> Пароль: </td> <td> <input type="text" name='passwordAP' minlength="8"> </td>
                     </tr>
                 </table>
 
@@ -152,12 +169,39 @@
                 </table>
                 
                 <br>
-
+                
                 <input type='button' value='Сохранить' onclick="sendform(this, 'settings')">
 
                 </fieldset>
             </form>
 
+            <br>
+            
+            <form id="form_rtc">
+            
+                <fieldset><legend>Настройки часов</legend>
+                
+                <input type="hidden" name="seconds" value="0">
+
+                <table>
+                    <tr>
+                        <td> Дата: </td><td> <input type="date" name="date"> </td> <!--<input type="text" name="year" size="4"> - <input type="text" name="month" size="2"> - <input type="text" name="day" size="2">-->
+                    </tr>
+                    <tr>
+                        <td> Время: </td><td> <input type="time" name="time"> </td> <!--<input type="text" name="h" size="2"> : <input type="text" name="m" size="2"> : <input type="text" name="s" size="2">-->
+                    </tr>
+                </table>
+
+                <br><br>
+                
+                <input type='button' value='Сохранить' onclick="sendform(this, 'settings_time', {data:{source:'hand'}})">
+                <!--<input type='button' value='Обновить время через Интернет' onclick="sendform(this, 'settings_time', {data:{source:'ntp'}})">-->
+                <input type='button' value='Взять время из браузера и сохранить' onclick="{let d = get_rtc_browser(); console.log(d); this.form.date.value=d.date; this.form.time.value=d.time.slice(0, -3); this.form.seconds.value=d.time.slice(-2)}; sendform(this, 'settings_time', {data:{source:'browser'}})">
+               
+                </fieldset>
+            
+            </form>
+            
             <br>
             
             <form>

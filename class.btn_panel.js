@@ -186,6 +186,7 @@ class BtnPanel {
             this.set_mode('editing');
         } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
             this.set_mode('using');
+            sendform(null, 'bt_panel_save', {data: {'bt_panel':JSON.stringify(this.btns_export())}});
             
         } else if (c.contains('btns_button')) {
             
@@ -241,6 +242,7 @@ class BtnPanel {
             w.querySelector('.btn_ei').value = el.value;
             w.querySelector('textarea').textContent = data;
             w.querySelector('textarea').focus();
+            ei_calc_size(w.querySelector('textarea'));
             if (c.contains(this.opts.class_prefix+'btn_import')) {
                 w.querySelector('input').addEventListener('click', this.ev_btns_import);
             } else {
@@ -287,7 +289,7 @@ class BtnPanel {
             button_el.className='btns_button';
             
             if (button.ch_name !== undefined) button_el.dataset.name = button.ch_name;
-            if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
+            button_el.dataset.value = 0; //if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
             
         } else {
             
@@ -401,6 +403,8 @@ class BtnPanel {
     }
     
     build_panel(categories) {
+        if (!categories) return;
+        this.opts.btns.innerHTML = '';
         
         for (let category of categories) {
             let category_el = this.build_panel_category(category, this.opts.btns);
@@ -408,12 +412,12 @@ class BtnPanel {
         }
         
         this.build_panel_category(null, this.opts.btns);
+        
+        this.set_mode(this.opts.mode);
     }
     
     btns_import(data) {
-        this.opts.btns.innerHTML = '';
         this.build_panel(data);
-        this.set_mode(this.opts.mode);
     }
     
     ev_btns_import(e) {
@@ -425,8 +429,8 @@ class BtnPanel {
         if (el.classList.contains('btns_button')) { return {
             type:'button',
             name:el.value,
-            ch_name:el.dataset.name,
-            ch_value:el.dataset.value
+            ch_name:el.dataset.name/*,
+            ch_value:el.dataset.value*/
         };} else if (el.classList.contains('btns_group')) { return {
             type:'group',
             name:el.firstChild.textContent,
