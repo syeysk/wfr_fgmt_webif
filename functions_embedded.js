@@ -438,7 +438,7 @@ function update_data() {
             if (btn.classList.contains('btns_editing')) continue;
              
              if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
-             else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) && 1;
+             else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
         }
         document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
         document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
