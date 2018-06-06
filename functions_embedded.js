@@ -440,6 +440,7 @@ function update_data() {
              if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
              else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
         }
+
         document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
         document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
 
@@ -447,6 +448,8 @@ function update_data() {
         let d = get_rtc_browser();
         document.getElementById('stat_rtc_browser').textContent = d.date +" "+ d.time;
 
+        document.getElementById('form_device_name').device_name.value = res.data.settings.device_name;
+        
         document.getElementById('form_wifi_mode').wifi_mode.value = res.data.settings.wifi_mode;
         
         document.getElementById('form_wifi_wifi').password.value = res.data.settings.password;
