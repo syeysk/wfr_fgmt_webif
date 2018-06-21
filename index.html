@@ -29,6 +29,7 @@
         <div class="navpanel">
             <div data-content="std">Стандарт</div>
             <div data-content="btn">Панель</div>
+            <div data-content="schedule">Расписание</div>
             <!--<div data-content="dev">Устройства</div>-->
             <!--<div data-content="event">События</div>-->
             <div data-content="set">Настройки</div>
@@ -58,6 +59,57 @@
             </div>
         </div>
 
+        <div class="content" id="content_schedule">
+            <table>
+                <tr>
+                    <th>Год</th>
+                    <th>Мес</th>
+                    <th>День</th>
+                    <th>Час</th>
+                    <th>Мин</th>
+                    <th>Сек</th>
+                </tr><tr class="values">
+                    <td>
+                        <input type="number" size="4" name="year" value="00" max="2100" min="1">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="month" value="00" max="12" min="1">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="day" value="00" max="31" min="1">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="hour" value="00" max="23" min="0">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="minute" value="00" max="59" min="0">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="second" value="00" max="59" min="0">
+                    </td>
+                </tr><tr>
+                    <td>
+                        <input type="checkbox" name="is_use_year">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_use_month">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_use_day">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_use_hour">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_use_minute">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="is_use_second">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
         <div class="content" id="content_btn">
             <div class='content_block_right'>
                 <input class='btnpanel_btn_import btns_editing' type='button' value="Импорт">

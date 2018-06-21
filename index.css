@@ -27,6 +27,12 @@ input[data-name] {color: white;}
 input[data-value="0"][data-name] {background: #c70005;}
 input[data-value="1"][data-name] {background: green;}
 
+/* вкладка расписания */
+
+#content_schedule tr td {text-align:center;}
+#content_schedule .values input {width: 3em;}
+#content_schedule .values input[name="year"] {width: 4em;}
+
 /* консоль уведомлений */
 
 #notes{position:fixed;bottom:0;right:0;width:100%;text-align:left; display: flex;flex-flow: wrap-reverse;}
