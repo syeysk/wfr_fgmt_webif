@@ -15,7 +15,7 @@ var cs = new ContentShower({
 
 var bp = new BtnPanel({
     btnpanel: document.getElementById("content_btn"),
-    class_prefix: 'btnpanel_'/*,
+    class_prefix: 'btnpanel_',
     initial_btns: [
         {name:'Кабинет', children: [
             {type:'button', name:'Главный свет', ch_name:6},
@@ -38,7 +38,7 @@ var bp = new BtnPanel({
             {type:"button",name:"Главный свет", ch_name:12},
             {type:"button",name:"Вытяжка", ch_name:13}
         ]}
-    ]*/
+    ]
 });
 
 
