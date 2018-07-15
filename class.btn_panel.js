@@ -20,6 +20,7 @@ class BtnPanel {
         
         this.build_panel(this.opts.initial_btns);
         this.set_mode('using');
+        this.btn_for_replace = null;
         
         /*
          * e.clientX - позиция курсора относительно окна просмтра
@@ -27,7 +28,7 @@ class BtnPanel {
          * window.pageXOffset (window.scrollX) - смещение страницы относительно окна просмотра при пролистывании
          */
         
-        DND(this.opts.btns, {
+        /*DND(this.opts.btns, {
             moved: '.btns_button',
             down: function(e, opts) {
                 if (opts.data.bp.opts.mode !== 'editing') return;
@@ -82,7 +83,7 @@ class BtnPanel {
             overenter: function(e, opts, over_el) {
                 if (over_el === null) return;
                 console.log(over_el === opts.e_moved.target);
-                if (/*over_el === opts.prev_over_el || */over_el === opts.e_moved.target) return;
+                if (/*over_el === opts.prev_over_el || * /over_el === opts.e_moved.target) return;
                 if (over_el.classList.contains('btns_button')) {
                     var left = parseInt(over_el.getBoundingClientRect().left);
                     var width = parseInt(getComputedStyle(over_el).width);
@@ -112,7 +113,7 @@ class BtnPanel {
                 }
             },
             data: {bp:this}
-        });
+        });*/
     }
     
     
@@ -129,7 +130,8 @@ class BtnPanel {
             this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.remove('hidden')});
         }
     }
-    
+
+    /* клик на кнопки в окне  */
     ev_edit_click(e) {
         
         let c = e.target.classList;
@@ -144,8 +146,57 @@ class BtnPanel {
             else if (btn.classList.contains('btns_category_name')) btn.parentElement.remove();
             
             W.close(w);
-        } /*else if (c.contains('btn_edit_')) {
             
+        } else if (c.contains('btn_edit_replace')) {
+            let w = W.get_w(el);
+            let btn = W.get_data(w);
+            
+            this.btn_for_replace = btn;
+            
+            W.close(w);
+
+        } else if (c.contains('btn_edit_insert_left')) {
+            let w = W.get_w(el);
+            let btn = W.get_data(w);
+            
+            btn.parentElement.insertBefore(this.btn_for_replace, btn);
+            this.btn_for_replace = null;
+
+            W.close(w);
+            
+        } else if (c.contains('btn_edit_insert_right')) {
+            let w = W.get_w(el);
+            let btn = W.get_data(w);
+            
+            btn.parentElement.insertBefore(this.btn_for_replace, btn.nextElementSibling);
+            this.btn_for_replace = null;
+            
+            W.close(w);
+
+        } else if (c.contains('btn_edit_insert_start')) {
+            let w = W.get_w(el);
+            let group_or_cat = W.get_data(w);
+            if (!(group_or_cat.classList.contains('btns_group_name') || group_or_cat.classList.contains('btns_category_name'))) return;
+            group_or_cat = group_or_cat.parentElement;
+            
+            group_or_cat.insertBefore(this.btn_for_replace, group_or_cat.firstChildElement);
+            this.btn_for_replace = null;
+            
+            W.close(w);
+
+        } else if (c.contains('btn_edit_insert_end')) {
+            let w = W.get_w(el);
+            let group_or_cat = W.get_data(w);
+            if (!(group_or_cat.classList.contains('btns_group_name') || group_or_cat.classList.contains('btns_category_name'))) return;
+            group_or_cat = group_or_cat.parentElement;
+            
+            group_or_cat.insertBefore(this.btn_for_replace, null);
+            this.btn_for_replace = null;
+            
+            W.close(w);
+            
+        } /*else if (c.contains('btn_edit_')) {
+    
         }*/
     }
     
@@ -177,6 +228,7 @@ class BtnPanel {
         }
     }
     
+    /* клик на кнопку панели, группу или категории */
     ev_click(e) {
         
         let c = e.target.classList;
@@ -186,6 +238,7 @@ class BtnPanel {
             this.set_mode('editing');
         } else if (c.contains(this.opts.class_prefix+'btn_mode_using')) {
             this.set_mode('using');
+            this.btn_for_replace = null;
             sendform(null, 'bt_panel_save', {data: {'bt_panel':JSON.stringify(this.btns_export())}});
             
         } else if (c.contains('btns_button')) {
@@ -196,10 +249,12 @@ class BtnPanel {
                 //console.log('нажата кнопка "'+el.value+'"');
                 btn_click(e);
             } else if (this.opts.mode == 'editing') {
-                let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+                let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
                 if (!w) return;
                 W.set_data(w, el);
                 w.addEventListener('click', this.ev_edit_click);
+                if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
+
                 w.querySelector('.btn_edit_rename').value=el.value;
                 w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
                 w.querySelector('.btn_edit_rename').addEventListener('keyup', this.ev_edit_blur);
@@ -212,10 +267,12 @@ class BtnPanel {
             
             if (el.closest('.btns_editing')) return;
             
-            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+            let w = W.open('btn_w_editgroup', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
             if (!w) return;
             W.set_data(w, el);
             w.addEventListener('click', this.ev_edit_click);
+            if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
+
             w.querySelector('.btn_edit_rename').value=el.textContent;
             w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
             
@@ -223,10 +280,12 @@ class BtnPanel {
             
             if (el.closest('.btns_editing')) return;
             
-            let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,position:[e.clientX, e.clientY],max_count:1});
+            let w = W.open('btn_w_editcategory', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
             if (!w) return;
             W.set_data(w, el);
             w.addEventListener('click', this.ev_edit_click);
+            if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
+
             w.querySelector('.btn_edit_rename').value=el.textContent;
             w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
             
@@ -253,6 +312,9 @@ class BtnPanel {
         }
     }
     
+    /* -----------------------------------
+     * Построение панели.
+     --------------------------------------- */
     
     ev_add(e) {
         
@@ -282,7 +344,7 @@ class BtnPanel {
         
         let button_el = document.createElement('input');
         
-        if (button) {
+        //if (button) {
             
             button_el.type='button';
             button_el.value=button.name;
@@ -291,7 +353,7 @@ class BtnPanel {
             if (button.ch_name !== undefined) button_el.dataset.name = button.ch_name;
             button_el.dataset.value = 0; //if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
             
-        } else {
+        /*} else {
             
             let ph = 'новая кнопка...';
             
@@ -303,7 +365,7 @@ class BtnPanel {
             button_el.addEventListener('blur', this.ev_add);
             button_el.addEventListener('keyup', this.ev_add);
             
-        }
+        }*/
         
         if (is_append) parent_el.appendChild(button_el);
         else parent_el.insertBefore(button_el, parent_el.lastChild.previousElementSibling);
@@ -315,7 +377,7 @@ class BtnPanel {
         
         let group_name_el, group_el = document.createElement('div');
         
-        if (group) {
+        //if (group) {
             
             group_el.className='btns_group';
             
@@ -323,7 +385,7 @@ class BtnPanel {
             group_name_el.textContent=group.name;
             group_name_el.className='btns_group_name';
             
-        } else {
+        /*} else {
             
             let ph = 'новая группа...';
             
@@ -337,7 +399,7 @@ class BtnPanel {
             group_name_el.addEventListener('blur', this.ev_add);
             group_name_el.addEventListener('keyup', this.ev_add);
             
-        }
+        }*/
         
         group_el.appendChild(group_name_el);
         if (is_append) parent_el.appendChild(group_el);
@@ -351,13 +413,13 @@ class BtnPanel {
         
         let category_name_el, category_el = document.createElement('div');
         
-        if (category) {
+        //if (category) {
             
             category_el.className='btns_category';
             category_name_el = document.createElement('div'/*, {className:'btns_category_name'}*/);
             category_name_el.textContent = category.name;
             
-        } else {
+        /*} else {
             
             category_el.className='btns_category btns_editing';
             category_name_el = document.createElement('input');
@@ -367,7 +429,7 @@ class BtnPanel {
             category_name_el.addEventListener('blur', this.ev_add);
             category_name_el.addEventListener('keyup', this.ev_add);
             
-        }
+        }*/
         
         category_name_el.className='btns_category_name';
         category_el.appendChild(category_name_el);
@@ -394,10 +456,10 @@ class BtnPanel {
                 this.build_panel_children(child.children, group_el)
             }
             
-            if (i === children.length-1) {
+            /*if (i === children.length-1) {
                 this.build_panel_button(null, parent_el);
                 this.build_panel_group(null, parent_el);
-            }
+            }*/
             
         }, this);
     }
@@ -411,10 +473,16 @@ class BtnPanel {
             this.build_panel_children(category.children, category_el);
         }
         
-        this.build_panel_category(null, this.opts.btns);
+        //this.build_panel_category(null, this.opts.btns);
         
         this.set_mode(this.opts.mode);
     }
+    
+    
+    /* -----------------------------------
+     * Импорт/экспорт
+     * --------------------------------------- */
+    
     
     btns_import(data) {
         this.build_panel(data);

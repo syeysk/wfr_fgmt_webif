@@ -15,16 +15,62 @@
         <div class='windowBody' id='btn_w_editbtn'>
             Имя: <input type='text' value='' class='btn_edit_rename'><br>
             Канал: <input type='text' value='' class='btn_edit_channel'><br>
-            <input type='button' value='Удалить' class='btn_edit_delete'><br>
-
+            <input type='button' value='Удалить' class='btn_edit_delete'>
             <input type='button' value='Переместиить' class='btn_edit_replace'><br>
+            
+            <div class="btn_edit_replace_into_block" style="display:none;">
+                Вставить рядом: <input type='button' value='слева' class='btn_editinsert_left'> <input type='button' value='справа' class='btn_edit_insert_right'><br>
+                Вставить внутрь: <input type='button' value='в начало' class='btn_edit_insert_start'> <input type='button' value='в конец' class='btn_edit_insert_end'><br>
+            </div>
+
+            <div class="btn_edit_insert_into_block">
+                Добавить: <br>
+                <input type='radio' name="what" value='button'> кнопку <input type='radio' name="what" value='group'> группа <input type='radio' name="what" value='category'> категорию <br>
+                <input type='radio' name="where" value='left'> слева <input type='radio' name="where" value='left'> справа <br>
+            </div>
+            
+            <br>
             
             <input type="checkbox"> <span title="Кнопка сработает через N секунд после нажатия"> Задержка нажатия: </span> <input type='number' value='0'> сек.<br>
             <input type="checkbox"> <span title="Кнопка вернётся в исходное состояние через N секунд после нажатия"> Таймер: </span> <input type='number' value='0'> сек.
 
         </div>
 
+        <div class='windowBody' id='btn_w_editcategory'>
+            Имя: <input type='text' value='' class='btn_edit_rename'><br>
+            <input type='button' value='Удалить' class='btn_edit_delete'>
+            <input type='button' value='Переместиить' class='btn_edit_replace'><br>
 
+            <div class="btn_edit_replace_into_block" style="display:none;">
+                Вставить рядом: <input type='button' value='ниже' class='btn_editinsert_left'> <input type='button' value='выше' class='btn_edit_insert_right'><br>
+            </div>
+            
+            <div class="btn_edit_insert_into_block">
+                Добавить: <br>
+                <input type='radio' name="what" value='button'> кнопку <input type='radio' name="what" value='group'> группа <input type='radio' name="what" value='category'> категорию <br>
+                <input type='radio' name="where" value='left'> слева <input type='radio' name="where" value='left'> справа <br>
+            </div>
+            
+        </div>
+
+        <div class='windowBody' id='btn_w_editgroup'>
+            Имя: <input type='text' value='' class='btn_edit_rename'><br>
+            <input type='button' value='Удалить' class='btn_edit_delete'>
+            <input type='button' value='Переместиить' class='btn_edit_replace'><br>
+
+            <div class="btn_edit_replace_into_block" style="display:none;">
+                Вставить рядом: <input type='button' value='слева' class='btn_editinsert_left'> <input type='button' value='справа' class='btn_edit_insert_right'><br>
+                Вставить внутрь: <input type='button' value='в начало' class='btn_edit_insert_start'> <input type='button' value='в конец' class='btn_edit_insert_end'><br>
+            </div>
+            
+           <div class="btn_edit_insert_into_block">
+                Добавить: <br>
+                <input type='radio' name="what" value='button'> кнопку <input type='radio' name="what" value='group'> группа <br>
+                <input type='radio' name="where" value='left'> слева <input type='radio' name="where" value='left'> справа <br>
+            </div>
+            
+        </div>
+        
         <div class='windowBody' id='btn_w_ei'>
             <textarea style='width:95%;' rows='10' onkeyup="ei_calc_size(this)"> </textarea><br>
             Количество байт: <span class="ei_size"> </span>
