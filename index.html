@@ -11,6 +11,13 @@
         <script src="windows.js"> </script> 
     </head>
     <body>
+
+            <div class='windowBody' id='w_info_edit_panel'>
+                <h3>Режим использования</h3>
+                В данном режиме 
+                <h3>Режим редактирования</h3>
+                При нажатии на кнопку открывается окно, в котором можно настроить имя кнопки, канал, а также переместить кнопку в другое место, удалить.
+            </div>
     
         <div class='windowBody' id='btn_w_editbtn'>
             Имя: <input type='text' value='' class='btn_edit_rename'><br>
@@ -167,6 +174,7 @@
                 <input class='btnpanel_btn_import btns_editing' type='button' value="Импорт">
                 <input class='btnpanel_btn_export btns_editing' type='button' value="Экспорт">
                 <input class='btnpanel_btn_mode_editing' type='button' value="Редактировать"><input class='btnpanel_btn_mode_using' type='button' value="Сохранить и завершить редактирование">
+                <input class='' type='button' value="?" onclick="W.open('w_info_edit_panel', {sheet:true});">
                 <!--<br>
                 <span>Настройка действий кнопок осуществляется в разделе "События"</span>-->
             </div>
