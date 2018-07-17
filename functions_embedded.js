@@ -423,7 +423,12 @@ function btn_click(e) {
     if (!e.target.classList.contains('btns_button')) return;
     if (e.target.classList.contains('btns_editing')) return;
     var input = e.target;
-    sendform(input, input.dataset.name=='led'?'led':'gpio', {data:{value:input.dataset.value=='0'?'1':'0', channel:input.dataset.name},func_success: function(res, input) {input.dataset.value=res.data.value;}, arg_func_success:input});
+    sendform(input, input.dataset.name=='led'?'led':'gpio', {data:{
+        value:input.dataset.value=='0'?'1':'0',
+        channel:input.dataset.name,
+        delay_press:input.dataset.delay_press == undefined ? "0" : input.dataset.delay_press,
+        timer:input.dataset.timer == undefined ? "0" : input.dataset.timer,
+    },func_success: function(res, input) {input.dataset.value=res.data.value;}, arg_func_success:input});
 }
 
 /* Обновляет всю информацию на странице */

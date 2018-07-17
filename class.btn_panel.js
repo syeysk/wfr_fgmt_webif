@@ -8,7 +8,7 @@ class BtnPanel {
         
         this.ev_click = this.ev_click.bind(this);
         this.ev_add = this.ev_add.bind(this);
-        this.ev_edit_click = this.ev_edit_click.bind(this);
+        this.ev_window_click = this.ev_window_click.bind(this);
         this.ev_edit_blur = this.ev_edit_blur.bind(this);
         this.ev_btns_import = this.ev_btns_import.bind(this);
         this.opts.btnpanel.addEventListener('click', this.ev_click);
@@ -132,7 +132,7 @@ class BtnPanel {
     }
 
     /* клик на кнопки в окне  */
-    ev_edit_click(e) {
+    ev_window_click(e) {
         
         let c = e.target.classList;
         let el = e.target;
@@ -199,7 +199,9 @@ class BtnPanel {
     
         }*/
     }
+
     
+    /* редактирование данных кнопки, группы или категории */
     ev_edit_blur(e) {
         
         if (!(e.keyCode === 13 || e.keyCode === undefined)) return;
@@ -208,23 +210,28 @@ class BtnPanel {
         let el = e.target;
         
         if (!el.value.trim()) return;
+
+        let w = W.get_w(el);
+        let btn = W.get_data(w);
         
         if (c.contains('btn_edit_rename')) {
-            let w = W.get_w(el);
-            let btn = W.get_data(w);
-            
+
             if (btn.classList.contains('btns_button')) btn.value = el.value;
             else if (btn.classList.contains('btns_group_name')) btn.textContent = el.value;
             else if (btn.classList.contains('btns_category_name')) btn.textContent = el.value;
-            
-            W.close(w);
+
         } else if (c.contains('btn_edit_channel')) {
-            let w = W.get_w(el);
-            let btn = W.get_data(w);
             
             if (btn.classList.contains('btns_button')) btn.dataset.name = el.value;
+
+        } else if (c.contains('btn_edit_timer')) {
             
-            W.close(w);
+            if (btn.classList.contains('btns_button')) btn.dataset.timer = el.value;
+            
+        } else if (c.contains('btn_edit_delay_press')) {
+            
+            if (btn.classList.contains('btns_button')) btn.dataset.delay_press = el.value;
+            
         }
     }
     
@@ -252,7 +259,7 @@ class BtnPanel {
                 let w = W.open('btn_w_editbtn', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
                 if (!w) return;
                 W.set_data(w, el);
-                w.addEventListener('click', this.ev_edit_click);
+                w.addEventListener('click', this.ev_window_click);
                 if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
 
                 w.querySelector('.btn_edit_rename').value=el.value;
@@ -261,6 +268,12 @@ class BtnPanel {
                 w.querySelector('.btn_edit_channel').value=el.dataset.name;
                 w.querySelector('.btn_edit_channel').addEventListener('blur', this.ev_edit_blur);
                 w.querySelector('.btn_edit_channel').addEventListener('keyup', this.ev_edit_blur);
+                w.querySelector('.btn_edit_delay_press').value=el.dataset.delay_press;
+                w.querySelector('.btn_edit_delay_press').addEventListener('blur', this.ev_edit_blur);
+                w.querySelector('.btn_edit_delay_press').addEventListener('keyup', this.ev_edit_blur);
+                w.querySelector('.btn_edit_timer').value=el.dataset.timer;
+                w.querySelector('.btn_edit_timer').addEventListener('blur', this.ev_edit_blur);
+                w.querySelector('.btn_edit_timer').addEventListener('keyup', this.ev_edit_blur);
             }
             
         } else if (c.contains('btns_group_name') && this.opts.mode == 'editing') {
@@ -270,7 +283,7 @@ class BtnPanel {
             let w = W.open('btn_w_editgroup', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
             if (!w) return;
             W.set_data(w, el);
-            w.addEventListener('click', this.ev_edit_click);
+            w.addEventListener('click', this.ev_window_click);
             if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
 
             w.querySelector('.btn_edit_rename').value=el.textContent;
@@ -283,7 +296,7 @@ class BtnPanel {
             let w = W.open('btn_w_editcategory', {add_title:false,add_sheet:true,/*position:[e.clientX, e.clientY],*/max_count:1});
             if (!w) return;
             W.set_data(w, el);
-            w.addEventListener('click', this.ev_edit_click);
+            w.addEventListener('click', this.ev_window_click);
             if (this.btn_for_replace) w.querySelector('.btn_edit_replace_into_block').style.display="block";
 
             w.querySelector('.btn_edit_rename').value=el.textContent;
@@ -351,6 +364,8 @@ class BtnPanel {
             button_el.className='btns_button';
             
             if (button.ch_name !== undefined) button_el.dataset.name = button.ch_name;
+            if (button.delay_press !== undefined) button_el.dataset.delay_press= button.delay_press;
+            if (button.timer !== undefined) button_el.dataset.timer = button.timer;
             button_el.dataset.value = 0; //if (button.ch_value !== undefined) button_el.dataset.value = button.ch_value;
             
         /*} else {
@@ -498,7 +513,9 @@ class BtnPanel {
             type:'button',
             name:el.value,
             ch_name:el.dataset.name/*,
-            ch_value:el.dataset.value*/
+            ch_value:el.dataset.value*/,
+            delay_press: el.dataset.delay_press,
+            timer: el.dataset.timer
         };} else if (el.classList.contains('btns_group')) { return {
             type:'group',
             name:el.firstChild.textContent,
