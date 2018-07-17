@@ -222,7 +222,7 @@ class BtnPanel {
 
         } else if (c.contains('btn_edit_channel')) {
             
-            if (btn.classList.contains('btns_button')) btn.dataset.name = el.value;
+            if (btn.classList.contains('btns_button')) btn.dataset.name = parseInt(el.value)-1;
 
         } else if (c.contains('btn_edit_timer')) {
             
@@ -265,7 +265,7 @@ class BtnPanel {
                 w.querySelector('.btn_edit_rename').value=el.value;
                 w.querySelector('.btn_edit_rename').addEventListener('blur', this.ev_edit_blur);
                 w.querySelector('.btn_edit_rename').addEventListener('keyup', this.ev_edit_blur);
-                w.querySelector('.btn_edit_channel').value=el.dataset.name;
+                w.querySelector('.btn_edit_channel').value=parseInt(el.dataset.name)+1;
                 w.querySelector('.btn_edit_channel').addEventListener('blur', this.ev_edit_blur);
                 w.querySelector('.btn_edit_channel').addEventListener('keyup', this.ev_edit_blur);
                 w.querySelector('.btn_edit_delay_press').value=el.dataset.delay_press;
