@@ -127,6 +127,9 @@
                     <th>Час</th>
                     <th>Мин</th>
                     <th>Сек</th>
+                    <th>Канал</th>
+                    <th>Состояние</th>
+                    <th></th>
                 </tr><tr class="values">
                     <td>
                         <input type="number" size="4" name="year" value="00" max="2100" min="1">
@@ -145,6 +148,19 @@
                     </td>
                     <td>
                         <input type="number" size="2" name="second" value="00" max="59" min="0">
+                    </td>
+                    <td>
+                        <input type="number" size="2" name="ch_name" value="1">
+                    </td>
+                    <td>
+                        <select>
+                            <option selected value="1">Включить</option>
+                            <option value="0">Выключить</option>
+                            <option value="-1">Инвертировать</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="button" value="Добавить задачу" style="width:auto;">
                     </td>
                 </tr><tr>
                     <td>
@@ -165,6 +181,9 @@
                     <td>
                         <input type="checkbox" name="is_use_second">
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </table>
         </div>
