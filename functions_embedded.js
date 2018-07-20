@@ -428,7 +428,11 @@ function btn_click(e) {
         channel:input.dataset.name,
         delay_press:input.dataset.delay_press == undefined ? "0" : input.dataset.delay_press,
         timer:input.dataset.timer == undefined ? "0" : input.dataset.timer,
-    },func_success: function(res, input) {input.dataset.value=res.data.value;}, arg_func_success:input});
+    },func_success: function(res, input) {
+        var btns = document.body.querySelectorAll('input[type="button"][data-name="'+input.dataset.name+'"]');
+        for (btn of btns) btn.dataset.value=res.data.value
+        input.dataset.value=res.data.value;
+    }, arg_func_success:input});
 }
 
 /* Обновляет всю информацию на странице */
