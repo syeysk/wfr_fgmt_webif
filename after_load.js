@@ -42,4 +42,4 @@ var bp = new BtnPanel({
 });
 
 
-update_data();
+update_data(true);

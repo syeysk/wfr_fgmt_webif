@@ -437,7 +437,7 @@ function btn_click(e) {
 
 /* Обновляет всю информацию на странице */
 
-function update_data() {
+function update_data(proccess_outlets=false) {
     sendform(null, 'get_data', {func_success: function(res, arg) {
         //alert(JSON.stringify(res));
 
@@ -448,6 +448,15 @@ function update_data() {
              
              if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
              else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
+        }
+        
+        // выделяем розетки
+        if (proccess_outlets) {
+            for (var i = res.data.count_outlets-1; i >= 0 ; i--) {
+                var el = document.getElementById('btns').querySelector('input[data-name="'+i+'"]');
+                el.style.borderRadius = "32px";
+            }
+            if (res.data.count_outlets !== 0) document.getElementById('btns').insertBefore(document.createElement('br'), document.getElementById('btns').querySelector('input[data-name="'+(res.data.count_outlets-1)+'"]').nextElementSibling);
         }
 
         document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
