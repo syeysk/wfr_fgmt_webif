@@ -509,7 +509,7 @@ function update_data(data_type='all', build_btns=false, showing_message=true) {
             document.getElementById('form_other').update_time.value = res.data.settings.update_time;
         }
         
-        cs.update_time = res.data.update_time;
+        cs.updater_set_time(res.data.update_time);
     }});
 }
 
@@ -551,12 +551,19 @@ class ContentShower {
     updater_on(mills=null) {
         if (this.timer_id !== 0) return; // уже запущен
         if (mills === null) mills = this.update_time;
+        this.updater();
         this.timer_id = setInterval(this.updater, mills);
     }
     updater_off() {
         clearInterval(this.timer_id);
         this.timer_id = 0;
     }
+    updater_set_time(mills) {
+        if (this.update_time === mills) return;
+        this.update_time = mills;
+        this.updater_off();
+        this.updater_on();
+    };
     
     show(cname_new) {
         let cname_old = this.opts.content_active;
