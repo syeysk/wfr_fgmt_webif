@@ -77,6 +77,7 @@ function RA_raw(action, data, options) {
 
 function show_button_message(button, message, timeout) {
     var process;
+    if (!button) return;
     if (button.nextSibling === null || button.nextSibling.className != 'RA_ButtonProgress') {
         process = document.createElement('span');
         process.style.marginLeft = '10px';
@@ -94,6 +95,12 @@ function animate_element(el, name) {
 }
 
 function light_absent_fields(form, absent_fields) {
+    if (!form) return;
+    if (form.tagName !== 'FORM') {
+        if (form.form) form = form.form;
+        else from = form.closest(form);
+    }
+
     var i, field;
     /*      for (i = 0; i<absent_fields.length; i++) {
      *               field = absent_fields[i];
@@ -122,13 +129,13 @@ function RA_ButtonProgress(action, data, button, sending_text, func_success, opt
         func_success: function(res) {
             var timeout = res['timeout'] !== undefined ? res['timeout'] : 3000 ;
             show_button_message(button,  res['message'], timeout);
-            light_absent_fields(button.form, []) // уберём красноту с полей, если они до этого были неверными.
+            light_absent_fields(button, []) // уберём красноту с полей, если они до этого были неверными.
             if (func_success) func_success(res, options['arg_func_success']);
         },
         func_error: function(res) {
             show_button_message(button, 'ошибка: '+res['message']);
             animate_element(button, 'btn-err')
-            if (res['absent_fields'] !== undefined) light_absent_fields(button.form, res['absent_fields']);
+            if (res['absent_fields'] !== undefined) light_absent_fields(button, res['absent_fields']);
            if (options['func_error']) options['func_error'](res, options['arg_func_error']);
         },
         func_fatal: function(res) {
@@ -436,47 +443,70 @@ function btn_click(e) {
 }
 
 /* Обновляет всю информацию на странице */
-
-function update_data(proccess_outlets=false) {
-    sendform(null, 'get_data', {func_success: function(res, arg) {
+/* data_type - должна соответствовать идентификатору вкладки
+ */
+function update_data(data_type='all', build_btns=false, showing_message=true) {
+    sendform(null, 'get_data', {answer_type: showing_message ? undefined : 'ButtonProgress', data: {data_type:data_type}, func_success: function(res, arg) {
         //alert(JSON.stringify(res));
 
-        bp.build_panel(JSON.parse(res.data.bt_panel)); // строим панель до обновления состояния кнопок
+        if (data_type === 'btn' || data_type === 'all') { // строим панель до обновления состояния кнопок
+        
+            bp.build_panel(JSON.parse(res.data.bt_panel));
 
-        for (let btn of document.body.querySelectorAll('.btns_button')) {
-            if (btn.classList.contains('btns_editing')) continue;
+        }
+        if (data_type === 'std' || data_type === 'btn' || data_type === 'all') {
+
+            for (let btn of document.body.querySelectorAll('.btns_button')) {
+                if (btn.classList.contains('btns_editing')) continue;
              
-             if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
-             else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
-        }
-        
-        // выделяем розетки
-        if (proccess_outlets) {
-            for (var i = res.data.count_outlets-1; i >= 0 ; i--) {
-                var el = document.getElementById('btns').querySelector('input[data-name="'+i+'"]');
-                el.style.borderRadius = "32px";
+                if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
+                else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
             }
-            if (res.data.count_outlets !== 0) document.getElementById('btns').insertBefore(document.createElement('br'), document.getElementById('btns').querySelector('input[data-name="'+(res.data.count_outlets-1)+'"]').nextElementSibling);
+        
+            if (build_btns) {
+                var btns = document.getElementById("btns");
+                for (var i=1; i < 17; i++) {
+                    btns.innerHTML += "<input type='button' value='"+i+"' data-value='0' data-name='"+(i-1)+"' class='btns_button'>";
+                    // выделяем розетки
+                    if (i-1 < res.data.count_outlets) {
+                        var btn = btns.lastElementChild;
+                        btn.style.borderRadius = "32px";
+                        if (i === res.data.count_outlets) btns.insertBefore(document.createElement('br'), btn.nextElementSibling);
+                    }
+                }
+                
+                /*// выделяем розетки
+                for (var i = res.data.count_outlets-1; i >= 0 ; i--) {
+                    var el = document.getElementById('btns').querySelector('input[data-name="'+i+'"]');
+                    el.style.borderRadius = "32px";
+                }
+                if (res.data.count_outlets !== 0) document.getElementById('btns').insertBefore(document.createElement('br'), document.getElementById('btns').querySelector('input[data-name="'+(res.data.count_outlets-1)+'"]').nextElementSibling);
+                */
+            }
+            
+            document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
+            document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
+            
+            document.getElementById('stat_rtc').textContent = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day +" "+ res.data.stat.rtc_h +":"+ res.data.stat.rtc_m +":"+ res.data.stat.rtc_s  +" "+ res.data.stat.rtc_is;
+            let d = get_rtc_browser();
+            document.getElementById('stat_rtc_browser').textContent = d.date +" "+ d.time;
+            
         }
+        if (data_type === 'set' || data_type === 'all') {
 
-        document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
-        document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
-
-        document.getElementById('stat_rtc').textContent = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day +" "+ res.data.stat.rtc_h +":"+ res.data.stat.rtc_m +":"+ res.data.stat.rtc_s  +" "+ res.data.stat.rtc_is;
-        let d = get_rtc_browser();
-        document.getElementById('stat_rtc_browser').textContent = d.date +" "+ d.time;
-
-        document.getElementById('form_device_name').device_name.value = res.data.settings.device_name;
+            document.getElementById('form_device_name').device_name.value = res.data.settings.device_name;
         
-        document.getElementById('form_wifi_mode').wifi_mode.value = res.data.settings.wifi_mode;
+            document.getElementById('form_wifi_mode').wifi_mode.value = res.data.settings.wifi_mode;
         
-        document.getElementById('form_wifi_wifi').password.value = res.data.settings.password;
-        document.getElementById('form_wifi_wifi').ssid.value = res.data.settings.ssid;
-        document.getElementById('form_wifi_wifi').passwordAP.value = res.data.settings.passwordAP;
-        document.getElementById('form_wifi_wifi').ssidAP.value = res.data.settings.ssidAP;
+            document.getElementById('form_wifi_wifi').password.value = res.data.settings.password;
+            document.getElementById('form_wifi_wifi').ssid.value = res.data.settings.ssid;
+            document.getElementById('form_wifi_wifi').passwordAP.value = res.data.settings.passwordAP;
+            document.getElementById('form_wifi_wifi').ssidAP.value = res.data.settings.ssidAP;
 
-        document.getElementById('form_rtc').date.value = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day;
-        document.getElementById('form_rtc').time.value = res.data.stat.rtc_h +":"+ res.data.stat.rtc_m;
+            document.getElementById('form_rtc').date.value = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day;
+            document.getElementById('form_rtc').time.value = res.data.stat.rtc_h +":"+ res.data.stat.rtc_m;
+
+        }
     }});
 }
 
@@ -489,7 +519,7 @@ function get_rtc_browser() {
 }
 
 /*
- * Класс для панел навигацими по вкладкам
+ * Класс для панели навигацими по вкладкам
  */
 class ContentShower {
     
@@ -504,8 +534,20 @@ class ContentShower {
         this.ev_show = this.ev_show.bind(this);
         
         opts.navpanel.addEventListener('click', this.ev_show);
-        
-        
+
+        this.updater = this.updater.bind(this);
+        this.timer_id = 0;
+        this.updater_on(2000);
+    }
+    
+    updater() {
+        update_data(this.opts.content_active, false, false);
+    }
+    updater_on(mills) {
+        this.timer_id = setInterval(this.updater, mills);
+    }
+    updater_off() {
+        clearInterval(this.timer_id);
     }
     
     show(cname_new) {

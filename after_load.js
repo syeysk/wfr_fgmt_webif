@@ -1,7 +1,3 @@
-var el = document.getElementById("btns");
-for (var i=1; i < 17; i++) {
-    el.innerHTML += "<input type='button' value='"+i+"' data-value='0' data-name='"+(i-1)+"' class='btns_button'>";
-}
 document.getElementById('btns').addEventListener('click', btn_click);
 
 var cs = new ContentShower({
@@ -16,7 +12,7 @@ var cs = new ContentShower({
 var bp = new BtnPanel({
     btnpanel: document.getElementById("content_btn"),
     class_prefix: 'btnpanel_',
-    initial_btns: [
+    /*initial_btns: [
         {name:'Кабинет', children: [
             {type:'button', name:'Главный свет', ch_name:6},
             {type:'group', name:'Настольный свет', children:[
@@ -38,8 +34,8 @@ var bp = new BtnPanel({
             {type:"button",name:"Главный свет", ch_name:12},
             {type:"button",name:"Вытяжка", ch_name:13}
         ]}
-    ]
+    ]*/
 });
 
 
-update_data(true);
+update_data('all', true);
