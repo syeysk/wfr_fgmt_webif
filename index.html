@@ -349,10 +349,17 @@
             
             <br>
             
-            <form>
+            <form id="form_other">
                 <fieldset><legend>Прочее</legend>
-                    <input type="button" value="Сбросить настройки" onclick="if (confirm('Настройки будут безвозвратно сброшены на заводские. Продолжить?')) sendform(this, 'settings_reset', {func_success: function() {alert('Настройки сброшены. Перезагрузите устройство.');}});">
-                    <input type="button" value="Перезапустить" onclick="if (confirm('Устройство будет перезапущено. Продолжить?')) sendform(this, 'settings_reboot', {func_after_load: function() {alert('Устройство перезапущено. Через несколько секунд обновите данную страницу.');}});">
+                
+                    Период обновления страницы: <input type="number" name='update_time' style="width:100px;"> мс
+                    <input type='button' value='Сохранить' onclick="sendform(this, 'settings_other')">
+                    <br>
+                
+                    <div style="color:#9a1515;">
+                        <input type="button" value="Сбросить настройки" onclick="if (confirm('Настройки будут безвозвратно сброшены на заводские. Продолжить?')) sendform(this, 'settings_reset', {func_success: function() {alert('Настройки сброшены. Перезагрузите устройство.');}});">
+                        <input type="button" value="Перезапустить" onclick="if (confirm('Устройство будет перезапущено. Продолжить?')) sendform(this, 'settings_reboot', {func_after_load: function() {alert('Устройство перезапущено. Через несколько секунд обновите данную страницу.');}});">
+                   </div>
                 </fieldset>
             </form>
 

@@ -17,6 +17,7 @@ class BtnPanel {
         this.opts.btn_mode_editing = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_editing');
         this.opts.btn_mode_using =   this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btn_mode_using');
         this.opts.btns = this.opts.btnpanel.querySelector('.'+this.opts.class_prefix+'btns'); 
+        this.opts.cs = opts.cs ? opts.cs : null;
         
         this.build_panel(this.opts.initial_btns);
         this.set_mode('using');
@@ -124,10 +125,12 @@ class BtnPanel {
             this.opts.btn_mode_editing.classList.remove('hidden');
             this.opts.btn_mode_using.classList.add('hidden');
             this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.add('hidden')});
+            this.opts.cs.updater_on();
         } else if (mode == 'editing') {
             this.opts.btn_mode_editing.classList.add('hidden');
             this.opts.btn_mode_using.classList.remove('hidden');
             this.opts.btnpanel.querySelectorAll('.btns_editing').forEach(function(el, i, els) {el.classList.remove('hidden')});
+            this.opts.cs.updater_off();
         }
     }
 

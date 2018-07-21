@@ -456,13 +456,6 @@ function update_data(data_type='all', build_btns=false, showing_message=true) {
         }
         if (data_type === 'std' || data_type === 'btn' || data_type === 'all') {
 
-            for (let btn of document.body.querySelectorAll('.btns_button')) {
-                if (btn.classList.contains('btns_editing')) continue;
-             
-                if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
-                else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
-            }
-        
             if (build_btns) {
                 var btns = document.getElementById("btns");
                 for (var i=1; i < 17; i++) {
@@ -484,13 +477,20 @@ function update_data(data_type='all', build_btns=false, showing_message=true) {
                 */
             }
             
+            for (let btn of document.body.querySelectorAll('.btns_button')) {
+                if (btn.classList.contains('btns_editing')) continue;
+             
+             if (btn.dataset.name == 'led') btn.dataset.value = res.data.gpio_led;
+             else btn.dataset.value = (res.data.gpio_std >> parseInt(btn.dataset.name)) & 1;
+            }
+        }
+        if (data_type === 'std' || data_type === 'all') {
             document.getElementById('stat_vcc').textContent = res.data.stat.vcc;
             document.getElementById('stat_time').textContent = res.data.stat.time_h +":"+ res.data.stat.time_m +":"+ res.data.stat.time_s;
             
             document.getElementById('stat_rtc').textContent = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day +" "+ res.data.stat.rtc_h +":"+ res.data.stat.rtc_m +":"+ res.data.stat.rtc_s  +" "+ res.data.stat.rtc_is;
             let d = get_rtc_browser();
             document.getElementById('stat_rtc_browser').textContent = d.date +" "+ d.time;
-            
         }
         if (data_type === 'set' || data_type === 'all') {
 
@@ -506,7 +506,10 @@ function update_data(data_type='all', build_btns=false, showing_message=true) {
             document.getElementById('form_rtc').date.value = res.data.stat.rtc_year +"-"+ res.data.stat.rtc_month +"-"+ res.data.stat.rtc_day;
             document.getElementById('form_rtc').time.value = res.data.stat.rtc_h +":"+ res.data.stat.rtc_m;
 
+            document.getElementById('form_other').update_time.value = res.data.settings.update_time;
         }
+        
+        cs.update_time = res.data.update_time;
     }});
 }
 
@@ -537,17 +540,22 @@ class ContentShower {
 
         this.updater = this.updater.bind(this);
         this.timer_id = 0;
-        this.updater_on(2000);
+        this.update_time = 2000;
+        this.updater_on();
     }
     
     updater() {
+        if (this.opts.content_active === "set") return;
         update_data(this.opts.content_active, false, false);
     }
-    updater_on(mills) {
+    updater_on(mills=null) {
+        if (this.timer_id !== 0) return; // уже запущен
+        if (mills === null) mills = this.update_time;
         this.timer_id = setInterval(this.updater, mills);
     }
     updater_off() {
         clearInterval(this.timer_id);
+        this.timer_id = 0;
     }
     
     show(cname_new) {
