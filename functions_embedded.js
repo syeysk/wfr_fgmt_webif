@@ -422,6 +422,7 @@ function DND(element, options) {
 
 function ei_calc_size(field) {
     field.parentElement.querySelector('.ei_size').textContent = field.value.length;
+    field.parentElement.querySelector('.ei_free').textContent = parseInt(field.parentElement.querySelector('.ei_max').textContent) - field.value.length;
 }
 
 /* Действие при нажатии на кнопку изменения состояния канала */
@@ -452,6 +453,7 @@ function update_data(data_type='all', build_btns=false, showing_message=true) {
         if (data_type === 'btn' || data_type === 'all') { // строим панель до обновления состояния кнопок
         
             bp.build_panel(JSON.parse(res.data.bt_panel));
+            document.getElementById("ei_max").textContent = res.data.max_size;
 
         }
         if (data_type === 'std' || data_type === 'btn' || data_type === 'all') {

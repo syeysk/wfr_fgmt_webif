@@ -80,7 +80,18 @@
         
         <div class='windowBody' id='btn_w_ei'>
             <textarea style='width:95%;' rows='10' onkeyup="ei_calc_size(this)"> </textarea><br>
-            Количество байт: <span class="ei_size"> </span>
+            <table>
+                <tr>
+                    <td>Количество байт:</td>
+                    <td class="ei_size"> </td>
+                </tr><tr>
+                    <td>Осталось:</td>
+                    <td class="ei_free">0</td>
+                </tr><tr>
+                    <td>Всего байт:</td>
+                    <td class="ei_max" id="ei_max">0</td>
+                </tr>
+            </table>
             <br>
             <input type='button' value='' class='btn_ei'>
         </div>
