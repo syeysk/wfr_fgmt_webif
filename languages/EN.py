@@ -1,9 +1,9 @@
 context = {
     'product_name': 'Реле WI-FI',
     'product_version': '0.3',
-    'panel_std': 'Стандарт',
+    'panel_std': 'Control',
     'panel_set': 'Settings',
-    'panel_panel': 'Panel',
+    'panel_panel': 'Custom',
     'panel_schedule': 'Schedule',
 
     'statistic': 'Statistic', 
@@ -38,5 +38,6 @@ context = {
 
     'save': 'Save',
 
+    'ms': 'ms', 
     '': '', 
 }
