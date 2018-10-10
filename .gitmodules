@@ -1,0 +1,3 @@
+[submodule "webif_libs"]
+	path = webif_libs
+	url = https://github.com/syeysk/webif_libs.git
