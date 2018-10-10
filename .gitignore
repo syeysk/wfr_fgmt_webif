@@ -1,1 +1,3 @@
 /min/* 
+*.pyc
+__pycache__/*

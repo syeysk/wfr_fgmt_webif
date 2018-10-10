@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width">
-        <title>Реле WI-FI v0.3</title>
+        <title>{{ product_name }} v{{ product_version }}</title>
         <script src="functions_embedded.js"> </script>
         <script src="class.btn_panel.js"> </script>
         <link rel="stylesheet" type="text/css" href="index.css">
@@ -97,12 +97,12 @@
         </div>
     
         <div class="navpanel">
-            <div data-content="std">Стандарт</div>
-            <div data-content="btn">Панель</div>
-            <div data-content="schedule">Расписание</div>
+            <div data-content="std">{{ panel_std }}</div>
+            <div data-content="btn">{{ panel_panel }}</div>
+            <div data-content="schedule">{{ panel_schedule }}</div>
             <!--<div data-content="dev">Устройства</div>-->
             <!--<div data-content="event">События</div>-->
-            <div data-content="set">Настройки</div>
+            <div data-content="set">{{ panel_set }}</div>
         </div>
 
         <div class="content" id="content_std">
@@ -111,19 +111,19 @@
             </div>
             <div style="text-align:left;">
                 <br>
-                <b>Статистика</b>
+                <b>{{ statistic }}</b>
                 <br>
                 <table>
                     <tr>
-                        <td>Время работы: </td><td> <span id="stat_time"> </span></td>
+                        <td>{{ time_of_job }}: </td><td> <span id="stat_time"> </span></td>
                     </tr><tr>
-                        <td>Текущее время модуля: </td><td> <span id="stat_rtc"> </span></td>
+                        <td>{{ rtc_module }}: </td><td> <span id="stat_rtc"> </span></td>
                     </tr><tr>
-                        <td>Текущее время браузера: </td><td> <span id="stat_rtc_browser"> </span></td>
+                        <td>{{ rtc_browser }}: </td><td> <span id="stat_rtc_browser"> </span></td>
                     </tr><!--<tr>
                         <td>Текущее время сети: </td><td> <span id="stat_rtc"> </span></td>
                     </tr>--><tr>
-                        <td>Напряжение: </td><td> <span id="stat_vcc"> </span> V </td>
+                        <td>{{ voltage }}: </td><td> <span id="stat_vcc"> </span> V </td>
                     </tr>
                 </table>
             </div>
@@ -278,21 +278,21 @@
         
         <div class="content" id="content_set">
             <form id="form_wifi_mode" onchange="sendform(this, 'settings_mode');">
-                <fieldset><legend>Режим работы</legend>
-                    <label> <input type='radio' name='wifi_mode' value='1'> Клиент </label>
-                    <label> <input type='radio' name='wifi_mode' value='0'> Точка доступа </label>
-                    <label> <input type='radio' name='wifi_mode' value='2'> Оба варианта </label>
+                <fieldset><legend>{{ set_wifi_mode }}</legend>
+                    <label> <input type='radio' name='wifi_mode' value='1'>{{ set_wifi_mode_client }}</label>
+                    <label> <input type='radio' name='wifi_mode' value='0'>{{ set_wifi_mode_ap }}</label>
+                    <label> <input type='radio' name='wifi_mode' value='2'>{{ set_wifi_mode_both }}</label>
                 </fieldset>
             </form>
         
             <br>
 
             <form class='settings' id="form_device_name">
-                <fieldset><legend>Имя устройства</legend>
+                <fieldset><legend>{{ set_device_name }}</legend>
             
                 <table>
                     <tr>
-                        <td> <input type="text" name='device_name'> </td> <td> <input type='button' value='Сохранить' onclick="sendform(this, 'settings_device_name')"> </td>
+                        <td> <input type="text" name='device_name'> </td> <td> <input type='button' value='{{ save }}' onclick="sendform(this, 'settings_device_name')"> </td>
                     </tr>
                 </table>
                 
@@ -302,31 +302,31 @@
             <br>
             
             <form class='settings' id="form_wifi_wifi">
-                <fieldset><legend>Настройки WI-FI</legend>
+                <fieldset><legend>{{ set_wifi }}</legend>
             
-                <br><b>Точка доступа</b><br>
+                <br><b>{{ set_wifi_mode_ap }}</b><br>
                 <table>
                     <tr>
-                        <td>Имя сети:</td> <td> <input type="text" name='ssidAP'> </td>
+                        <td>{{ set_wifi_ssid }}:</td> <td> <input type="text" name='ssidAP'> </td>
                     </tr>
                     <tr>
-                        <td> Пароль: </td> <td> <input type="text" name='passwordAP' minlength="8"> </td>
+                        <td> {{ set_wifi_password }}: </td> <td> <input type="text" name='passwordAP' minlength="8"> </td>
                     </tr>
                 </table>
 
-                <br><b>Клиент</b><br>
+                <br><b>{{ set_wifi_mode_client }}</b><br>
                 <table>
                     <tr>
-                        <td>Имя сети:</td> <td> <input type="text" name='ssid'> </td>
+                        <td>{{ set_wifi_ssid }}:</td> <td> <input type="text" name='ssid'> </td>
                     </tr>
                     <tr>
-                        <td>Пароль: </td> <td> <input type="text" name='password'> </td>
+                        <td>{{ set_wifi_password }}: </td> <td> <input type="text" name='password'> </td>
                     </tr>
                 </table>
                 
                 <br>
                 
-                <input type='button' value='Сохранить' onclick="sendform(this, 'settings')">
+                <input type='button' value='{{ save }}' onclick="sendform(this, 'settings')">
 
                 </fieldset>
             </form>
@@ -335,24 +335,24 @@
             
             <form id="form_rtc">
             
-                <fieldset><legend>Настройки часов</legend>
+                <fieldset><legend>{{ set_time }}</legend>
                 
                 <input type="hidden" name="seconds" value="0">
 
                 <table>
                     <tr>
-                        <td> Дата: </td><td> <input type="date" name="date"> </td> <!--<input type="text" name="year" size="4"> - <input type="text" name="month" size="2"> - <input type="text" name="day" size="2">-->
+                        <td> {{ set_time_date }}: </td><td> <input type="date" name="date"> </td> <!--<input type="text" name="year" size="4"> - <input type="text" name="month" size="2"> - <input type="text" name="day" size="2">-->
                     </tr>
                     <tr>
-                        <td> Время: </td><td> <input type="time" name="time"> </td> <!--<input type="text" name="h" size="2"> : <input type="text" name="m" size="2"> : <input type="text" name="s" size="2">-->
+                        <td> {{ set_time_time }}: </td><td> <input type="time" name="time"> </td> <!--<input type="text" name="h" size="2"> : <input type="text" name="m" size="2"> : <input type="text" name="s" size="2">-->
                     </tr>
                 </table>
 
                 <br><br>
                 
-                <input type='button' value='Сохранить' onclick="sendform(this, 'settings_time', {data:{source:'hand'}})">
+                <input type='button' value='{{ save }}' onclick="sendform(this, 'settings_time', {data:{source:'hand'}})">
                 <!--<input type='button' value='Обновить время через Интернет' onclick="sendform(this, 'settings_time', {data:{source:'ntp'}})">-->
-                <input type='button' value='Взять время из браузера и сохранить' onclick="{let d = get_rtc_browser(); console.log(d); this.form.date.value=d.date; this.form.time.value=d.time.slice(0, -3); this.form.seconds.value=d.time.slice(-2)}; sendform(this, 'settings_time', {data:{source:'browser'}})">
+                <input type='button' value='{{ set_time_set_from_browser }}' onclick="{let d = get_rtc_browser(); console.log(d); this.form.date.value=d.date; this.form.time.value=d.time.slice(0, -3); this.form.seconds.value=d.time.slice(-2)}; sendform(this, 'settings_time', {data:{source:'browser'}})">
                
                 </fieldset>
             
@@ -361,15 +361,15 @@
             <br>
             
             <form id="form_other">
-                <fieldset><legend>Прочее</legend>
+                <fieldset><legend>{{ set_other }}</legend>
                 
-                    Период обновления страницы: <input type="number" name='update_time' style="width:100px;"> мс
-                    <input type='button' value='Сохранить' onclick="sendform(this, 'settings_other')">
+                    {{ set_other_update_time }}: <input type="number" name='update_time' style="width:100px;"> мс
+                    <input type='button' value='{{ save }}' onclick="sendform(this, 'settings_other')">
                     <br>
                 
                     <div style="color:#9a1515;">
-                        <input type="button" value="Сбросить настройки" onclick="if (confirm('Настройки будут безвозвратно сброшены на заводские. Продолжить?')) sendform(this, 'settings_reset', {func_success: function() {alert('Настройки сброшены. Перезагрузите устройство.');}});">
-                        <input type="button" value="Перезапустить" onclick="if (confirm('Устройство будет перезапущено. Продолжить?')) sendform(this, 'settings_reboot', {func_after_load: function() {alert('Устройство перезапущено. Через несколько секунд обновите данную страницу.');}});">
+                        <input type="button" value="{{ set_other_reset }}" onclick="if (confirm('{{ set_other_reset_question }}')) sendform(this, 'settings_reset', {func_success: function() {alert('{{ set_other_reset_done }}');}});">
+                        <input type="button" value="{{ set_other_reboot }}" onclick="if (confirm('{{ set_other_reboot_question }}')) sendform(this, 'settings_reboot', {func_after_load: function() {alert('{{ set_other_reboot_done }}');}});">
                    </div>
                 </fieldset>
             </form>
